@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember, VALID_STATUSES, VALID_PRIORITIES } from '@/lib/permissions';
 import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req) {
@@ -15,6 +16,21 @@ export async function GET(req) {
     const priority = searchParams.get('priority');
     const assigneeId = searchParams.get('assigneeId');
     const search = searchParams.get('search');
+
+    if (projectId) {
+      const proj = await db.project.findUnique({
+        where: { id: projectId },
+        select: { workspaceId: true },
+      });
+      if (!proj) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      const member = await requireWorkspaceMember(proj.workspaceId, user.id);
+      if (!member) return NextResponse.json({ error: 'Forbidden: Access denied' }, { status: 403 });
+    } else if (workspaceId) {
+      const member = await requireWorkspaceMember(workspaceId, user.id);
+      if (!member) return NextResponse.json({ error: 'Forbidden: Access denied' }, { status: 403 });
+    } else {
+      return NextResponse.json({ error: 'workspaceId or projectId is required' }, { status: 400 });
+    }
 
     const where = {};
 
@@ -100,6 +116,18 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Project ID and title are required' }, { status: 400 });
     }
 
+    if (title.trim().length > 500) {
+      return NextResponse.json({ error: 'Task title must be 500 characters or less' }, { status: 400 });
+    }
+
+    if (status && !VALID_STATUSES.includes(status)) {
+      return NextResponse.json({ error: 'Invalid task status' }, { status: 400 });
+    }
+
+    if (priority && !VALID_PRIORITIES.includes(priority)) {
+      return NextResponse.json({ error: 'Invalid task priority' }, { status: 400 });
+    }
+
     const project = await db.project.findUnique({
       where: { id: projectId },
       select: { id: true, workspaceId: true, name: true, key: true },
@@ -107,6 +135,11 @@ export async function POST(req) {
 
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to project workspace' }, { status: 403 });
     }
 
     // Get max order

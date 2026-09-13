@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember, VALID_STATUSES, VALID_PRIORITIES } from '@/lib/permissions';
 import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req, { params }) {
@@ -74,6 +75,11 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
+    const member = await requireWorkspaceMember(task.project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
+
     return NextResponse.json({ task });
   } catch (error) {
     console.error('Fetch task detail error:', error);
@@ -97,6 +103,23 @@ export async function PATCH(req, { params }) {
 
     if (!existingTask) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(existingTask.project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
+
+    if (status && !VALID_STATUSES.includes(status)) {
+      return NextResponse.json({ error: 'Invalid task status' }, { status: 400 });
+    }
+
+    if (priority && !VALID_PRIORITIES.includes(priority)) {
+      return NextResponse.json({ error: 'Invalid task priority' }, { status: 400 });
+    }
+
+    if (title && title.trim().length > 500) {
+      return NextResponse.json({ error: 'Task title must be 500 characters or less' }, { status: 400 });
     }
 
     const updatedTask = await db.$transaction(async (tx) => {
@@ -199,6 +222,11 @@ export async function DELETE(req, { params }) {
 
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(task.project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
     }
 
     await db.task.delete({ where: { id } });

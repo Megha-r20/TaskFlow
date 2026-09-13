@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
 import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req, { params }) {
@@ -9,6 +10,20 @@ export async function GET(req, { params }) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { id: taskId } = await params;
+
+    const task = await db.task.findUnique({
+      where: { id: taskId },
+      include: { project: { select: { workspaceId: true } } },
+    });
+
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(task.project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
 
     const comments = await db.comment.findMany({
       where: { taskId },
@@ -43,6 +58,10 @@ export async function POST(req, { params }) {
       return NextResponse.json({ error: 'Comment content is required' }, { status: 400 });
     }
 
+    if (content.trim().length > 5000) {
+      return NextResponse.json({ error: 'Comment content must be 5000 characters or less' }, { status: 400 });
+    }
+
     const task = await db.task.findUnique({
       where: { id: taskId },
       include: { project: true },
@@ -50,6 +69,11 @@ export async function POST(req, { params }) {
 
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(task.project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
     }
 
     const comment = await db.$transaction(async (tx) => {
@@ -119,7 +143,6 @@ export async function POST(req, { params }) {
     });
 
     // Broadcast NOTIFICATION event for mentions (so notification bell updates instantly)
-    // The notification records were already created in the transaction above.
     const mentionMatches2 = content.match(/@([A-Za-z0-9_\s]+?)(?=\s|$|[.,!?])/g);
     if (mentionMatches2) {
       broadcastEvent(EVENT_TYPES.NOTIFICATION, { workspaceId: task.project.workspaceId });

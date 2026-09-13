@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
 
 export async function GET(req, { params }) {
   try {
@@ -67,6 +68,11 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
+    const member = await requireWorkspaceMember(project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
+
     const totalTasks = project.tasks.length;
     const completedTasks = project.tasks.filter((t) => t.status === 'DONE').length;
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -93,6 +99,24 @@ export async function PATCH(req, { params }) {
     const { id } = await params;
     const { name, description, status, color } = await req.json();
 
+    const project = await db.project.findUnique({
+      where: { id },
+      select: { workspaceId: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
+
+    if (name && name.trim().length > 200) {
+      return NextResponse.json({ error: 'Project name must be 200 characters or less' }, { status: 400 });
+    }
+
     const updated = await db.project.update({
       where: { id },
       data: {
@@ -116,6 +140,20 @@ export async function DELETE(req, { params }) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { id } = await params;
+
+    const project = await db.project.findUnique({
+      where: { id },
+      select: { workspaceId: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const member = await requireWorkspaceMember(project.workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
+    }
 
     await db.project.delete({
       where: { id },
