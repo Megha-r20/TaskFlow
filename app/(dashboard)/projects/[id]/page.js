@@ -29,19 +29,17 @@ export default function ProjectDetailPage({ params }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // View state: 'kanban' | 'list' | 'overview'
+  // View state: 'kanban' | 'list'
   const [viewMode, setViewMode] = useState('kanban');
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const [assigneeFilter, setAssigneeFilter] = useState('');
 
   // Modals
   const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId || null);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
-  const [quickAddStatus, setQuickAddStatus] = useState('TODO');
 
   useEffect(() => {
     fetchProject();
@@ -64,7 +62,6 @@ export default function ProjectDetailPage({ params }) {
   };
 
   const handleTaskMove = async (taskId, newStatus) => {
-    // Optimistic UI state update
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
     );
@@ -77,12 +74,11 @@ export default function ProjectDetailPage({ params }) {
       });
     } catch (err) {
       console.error('Task move error:', err);
-      fetchProject(); // Revert on failure
+      fetchProject();
     }
   };
 
   const handleOpenQuickAdd = (status) => {
-    setQuickAddStatus(status);
     setIsCreateTaskOpen(true);
   };
 
@@ -97,24 +93,21 @@ export default function ProjectDetailPage({ params }) {
     if (priorityFilter && task.priority !== priorityFilter) {
       return false;
     }
-    if (assigneeFilter && task.assigneeId !== assigneeFilter) {
-      return false;
-    }
     return true;
   });
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-32 bg-slate-800/40 rounded-xl" />
-        <div className="h-96 bg-slate-800/40 rounded-xl" />
+      <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
+        <div className="h-32 bg-slate-900/40 rounded-2xl border border-white/5" />
+        <div className="h-96 bg-slate-900/40 rounded-2xl border border-white/5" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="py-16 text-center text-slate-400">
+      <div className="py-20 text-center text-slate-400 text-sm">
         Project not found or access denied.
       </div>
     );
@@ -123,23 +116,23 @@ export default function ProjectDetailPage({ params }) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Project Header Banner */}
-      <div className="p-6 rounded-2xl bg-[#111622] border border-slate-800/80 shadow-xl space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 sm:p-8 rounded-3xl saas-card space-y-5 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="flex items-start gap-4">
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shrink-0"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shrink-0 ring-2 ring-white/20"
               style={{ backgroundColor: project.color || '#6366f1' }}
             >
               {project.key}
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-white">{project.name}</h2>
-                <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-800 text-indigo-400 border border-slate-700">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{project.name}</h2>
+                <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                   {project.status}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
                 {project.description || 'No description set for this project.'}
               </p>
             </div>
@@ -147,8 +140,8 @@ export default function ProjectDetailPage({ params }) {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleOpenQuickAdd('TODO')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/30"
+              onClick={() => setIsCreateTaskOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30 ring-1 ring-white/20"
             >
               <Plus className="w-4 h-4" />
               <span>Create Task</span>
@@ -156,22 +149,22 @@ export default function ProjectDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Project Metrics & Completion Bar */}
-        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Project Completion Velocity Progress */}
+        <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-6 text-xs text-slate-400">
             <div>
-              Total tasks: <strong className="text-white">{project.totalTasks}</strong>
+              Total tasks: <strong className="text-white font-bold">{project.totalTasks}</strong>
             </div>
             <div>
-              Completed: <strong className="text-emerald-400">{project.completedTasks}</strong>
+              Completed: <strong className="text-emerald-400 font-bold">{project.completedTasks}</strong>
             </div>
             <div>
-              Progress: <strong className="text-indigo-400">{project.progress}%</strong>
+              Velocity: <strong className="text-indigo-400 font-bold">{project.progress}%</strong>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Team:</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Team:</span>
             <div className="flex -space-x-2">
               {project.members?.map((m) => (
                 <img
@@ -179,7 +172,7 @@ export default function ProjectDetailPage({ params }) {
                   src={m.avatarUrl}
                   alt={m.name}
                   title={m.name}
-                  className="w-6 h-6 rounded-full object-cover ring-2 ring-[#111622]"
+                  className="w-6 h-6 rounded-full object-cover ring-2 ring-[#0f172a]"
                 />
               ))}
             </div>
@@ -188,14 +181,14 @@ export default function ProjectDetailPage({ params }) {
       </div>
 
       {/* Filter & View Switcher Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 rounded-xl bg-[#0d121d] border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 rounded-2xl bg-[#090d16] border border-white/5">
         {/* Left View Switcher Tabs */}
-        <div className="flex items-center gap-1 bg-[#121826] p-1 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1 bg-[#0f1522] p-1 rounded-xl border border-white/5">
           <button
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
               viewMode === 'kanban'
-                ? 'bg-indigo-600 text-white shadow'
+                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -204,9 +197,9 @@ export default function ProjectDetailPage({ params }) {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
               viewMode === 'list'
-                ? 'bg-indigo-600 text-white shadow'
+                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -216,22 +209,22 @@ export default function ProjectDetailPage({ params }) {
         </div>
 
         {/* Right Search and Dropdown Filters */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 sm:w-48">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="relative flex-1 sm:w-52">
+            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter tasks..."
-              className="w-full pl-8 pr-3 py-1.5 bg-[#121826] border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none"
+              placeholder="Search project tasks..."
+              className="w-full pl-9 pr-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-2.5 py-1.5 bg-[#121826] border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none"
+            className="px-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="TODO">Todo</option>
@@ -243,7 +236,7 @@ export default function ProjectDetailPage({ params }) {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-2.5 py-1.5 bg-[#121826] border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none"
+            className="px-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none"
           >
             <option value="">All Priorities</option>
             <option value="LOW">Low</option>
@@ -264,43 +257,43 @@ export default function ProjectDetailPage({ params }) {
         />
       ) : (
         /* List View */
-        <div className="bg-[#111622] border border-slate-800 rounded-xl overflow-hidden shadow-lg divide-y divide-slate-800/80">
-          <div className="p-3 bg-[#0d121d] grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            <div className="col-span-5 sm:col-span-6">Task</div>
+        <div className="saas-card rounded-2xl overflow-hidden shadow-xl divide-y divide-white/5">
+          <div className="p-3.5 bg-[#090d16] grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <div className="col-span-6 sm:col-span-7">Task Title</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-2">Priority</div>
-            <div className="col-span-3 sm:col-span-2 text-right">Assignee</div>
+            <div className="col-span-2 sm:col-span-1 text-right">Assignee</div>
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500">No matching tasks found</div>
+            <div className="p-12 text-center text-xs text-slate-500 italic">No matching tasks found</div>
           ) : (
             filteredTasks.map((t) => (
               <div
                 key={t.id}
                 onClick={() => setSelectedTaskId(t.id)}
-                className="p-3 grid grid-cols-12 items-center text-xs hover:bg-slate-800/50 cursor-pointer transition"
+                className="p-3.5 grid grid-cols-12 items-center text-xs hover:bg-slate-800/40 cursor-pointer transition group"
               >
-                <div className="col-span-5 sm:col-span-6 flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-indigo-400 font-bold">
+                <div className="col-span-6 sm:col-span-7 flex items-center gap-3">
+                  <span className="font-mono text-[10px] font-bold text-indigo-400 px-2 py-0.5 rounded bg-slate-900 border border-indigo-500/20">
                     {project.key}-{t.id.slice(0, 4)}
                   </span>
-                  <span className="font-semibold text-white truncate">{t.title}</span>
+                  <span className="font-bold text-white group-hover:text-indigo-300 transition truncate">{t.title}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                  <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700">
                     {t.status}
                   </span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-[10px] font-bold uppercase text-slate-400">{t.priority}</span>
                 </div>
-                <div className="col-span-3 sm:col-span-2 flex justify-end">
+                <div className="col-span-2 sm:col-span-1 flex justify-end">
                   {t.assignee ? (
                     <img
                       src={t.assignee.avatarUrl}
                       alt={t.assignee.name}
-                      className="w-5 h-5 rounded-full object-cover"
+                      className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-700"
                     />
                   ) : (
                     <span className="text-[10px] text-slate-500">Unassigned</span>
