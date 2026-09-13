@@ -29,11 +29,17 @@ export async function PATCH(req) {
     const user = await getSession();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { notificationIds, markAllRead } = await req.json();
+    const { notificationIds, markAllRead, id } = await req.json();
 
     if (markAllRead) {
       await db.notification.updateMany({
         where: { userId: user.id, isRead: false },
+        data: { isRead: true },
+      });
+    } else if (id) {
+      // Single notification mark-read
+      await db.notification.updateMany({
+        where: { id, userId: user.id },
         data: { isRead: true },
       });
     } else if (Array.isArray(notificationIds) && notificationIds.length > 0) {

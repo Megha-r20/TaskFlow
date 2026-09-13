@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   X,
   Calendar,
@@ -15,9 +15,11 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
+import { useRealtime } from '../layout/AppShell';
 
 export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onDelete }) {
   const { user, activeWorkspace } = useWorkspace();
+  const { registerRealtimeHandler } = useRealtime() || {};
   const [task, setTask] = useState(null);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showMentionMenu, setShowMentionMenu] = useState(false);
   const [mentionFilter, setMentionFilter] = useState('');
+  const commentsEndRef = useRef(null);
 
   useEffect(() => {
     if (taskId && isOpen) {
@@ -33,6 +36,32 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
       fetchWorkspaceMembers();
     }
   }, [taskId, isOpen]);
+
+  // Subscribe to realtime comment and task-update events
+  useEffect(() => {
+    if (!registerRealtimeHandler || !taskId || !isOpen) return;
+
+    const handleCommentAdded = (data) => {
+      if (data.taskId !== taskId) return;
+      setTask((prev) => {
+        if (!prev) return prev;
+        const exists = prev.comments?.find((c) => c.id === data.comment.id);
+        if (exists) return prev;
+        return { ...prev, comments: [...(prev.comments || []), data.comment] };
+      });
+      // Auto-scroll to new comment
+      setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    };
+
+    const handleTaskUpdated = (data) => {
+      if (data.task?.id !== taskId) return;
+      setTask((prev) => prev ? { ...prev, ...data.task } : prev);
+    };
+
+    const u1 = registerRealtimeHandler('COMMENT_ADDED', handleCommentAdded);
+    const u2 = registerRealtimeHandler('TASK_UPDATED', handleTaskUpdated);
+    return () => { u1?.(); u2?.(); };
+  }, [registerRealtimeHandler, taskId, isOpen]);
 
   const fetchTaskDetails = async () => {
     setLoading(true);
@@ -112,11 +141,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
         body: JSON.stringify({ content: commentInput }),
       });
       if (res.ok) {
-        const data = await res.json();
-        setTask((prev) => ({
-          ...prev,
-          comments: [...(prev.comments || []), data.comment],
-        }));
+        // Optimistic update already handled by SSE; just clear the input
         setCommentInput('');
       }
     } catch (err) {
@@ -297,7 +322,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <img
-                                src={c.user?.avatarUrl}
+                                src={c.user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.user?.name}`}
                                 alt={c.user?.name}
                                 className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-700"
                               />
@@ -311,6 +336,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                         </div>
                       ))
                     )}
+                    <div ref={commentsEndRef} />
                   </div>
 
                   {/* Comment Input */}

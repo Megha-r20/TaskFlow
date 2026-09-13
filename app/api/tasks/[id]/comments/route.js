@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req, { params }) {
   try {
@@ -109,6 +110,20 @@ export async function POST(req, { params }) {
 
       return c;
     });
+
+    // Broadcast new comment to all workspace subscribers
+    broadcastEvent(EVENT_TYPES.COMMENT_ADDED, {
+      comment,
+      taskId,
+      workspaceId: task.project.workspaceId,
+    });
+
+    // Broadcast NOTIFICATION event for mentions (so notification bell updates instantly)
+    // The notification records were already created in the transaction above.
+    const mentionMatches2 = content.match(/@([A-Za-z0-9_\s]+?)(?=\s|$|[.,!?])/g);
+    if (mentionMatches2) {
+      broadcastEvent(EVENT_TYPES.NOTIFICATION, { workspaceId: task.project.workspaceId });
+    }
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

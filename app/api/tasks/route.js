@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { broadcastEvent } from '@/lib/events';
+import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req) {
   try {
@@ -167,7 +167,7 @@ export async function POST(req) {
       return newTask;
     });
 
-    broadcastEvent('TASK_CREATED', { task, workspaceId: project.workspaceId });
+    broadcastEvent(EVENT_TYPES.TASK_CREATED, { task, workspaceId: project.workspaceId });
 
     return NextResponse.json({ task }, { status: 201 });
   } catch (error) {

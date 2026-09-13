@@ -1,20 +1,17 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   FolderKanban,
   ListFilter,
   Search,
   Plus,
-  Calendar,
-  Users,
-  CheckCircle2,
-  SlidersHorizontal,
-  ChevronRight,
-  TrendingUp,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
+import { useRealtime } from '@/components/layout/AppShell';
 import KanbanBoard from '@/components/kanban/KanbanBoard';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
@@ -25,6 +22,8 @@ export default function ProjectDetailPage({ params }) {
   const initialTaskId = searchParams.get('task');
 
   const { activeWorkspace } = useWorkspace();
+  const { registerRealtimeHandler } = useRealtime() || {};
+
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,11 +40,10 @@ export default function ProjectDetailPage({ params }) {
   const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId || null);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
-  useEffect(() => {
-    fetchProject();
-  }, [projectId]);
+  // Live indicator — briefly flash when a realtime update arrives
+  const [recentlyUpdated, setRecentlyUpdated] = useState(false);
 
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/projects/${projectId}`);
@@ -59,13 +57,66 @@ export default function ProjectDetailPage({ params }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
+
+  // ── Real-time task sync ──────────────────────────────────────────────────
+  // Instead of full re-fetch, we surgically update local state
+  useEffect(() => {
+    if (!registerRealtimeHandler) return;
+
+    const flashUpdate = () => {
+      setRecentlyUpdated(true);
+      setTimeout(() => setRecentlyUpdated(false), 1500);
+    };
+
+    const handleTaskCreated = (data) => {
+      const task = data.task;
+      if (!task || task.projectId !== projectId) return;
+      setTasks((prev) => {
+        if (prev.find((t) => t.id === task.id)) return prev;
+        return [...prev, task];
+      });
+      flashUpdate();
+    };
+
+    const handleTaskUpdated = (data) => {
+      const task = data.task;
+      if (!task || task.projectId !== projectId) return;
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, ...task } : t)));
+      flashUpdate();
+    };
+
+    const handleTaskDeleted = (data) => {
+      if (!data.taskId) return;
+      setTasks((prev) => {
+        // Only delete if the task belongs to this project
+        const found = prev.find((t) => t.id === data.taskId);
+        if (!found) return prev;
+        flashUpdate();
+        return prev.filter((t) => t.id !== data.taskId);
+      });
+    };
+
+    const u1 = registerRealtimeHandler('TASK_CREATED', handleTaskCreated);
+    const u2 = registerRealtimeHandler('TASK_UPDATED', handleTaskUpdated);
+    const u3 = registerRealtimeHandler('TASK_DELETED', handleTaskDeleted);
+
+    return () => {
+      u1?.();
+      u2?.();
+      u3?.();
+    };
+  }, [registerRealtimeHandler, projectId]);
+
+  // ── Optimistic drag-and-drop task move ──────────────────────────────────
   const handleTaskMove = async (taskId, newStatus) => {
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
     );
-
     try {
       await fetch(`/api/tasks/${taskId}`, {
         method: 'PATCH',
@@ -84,15 +135,9 @@ export default function ProjectDetailPage({ params }) {
 
   // Filter tasks logic
   const filteredTasks = tasks.filter((task) => {
-    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    if (statusFilter && task.status !== statusFilter) {
-      return false;
-    }
-    if (priorityFilter && task.priority !== priorityFilter) {
-      return false;
-    }
+    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (statusFilter && task.status !== statusFilter) return false;
+    if (priorityFilter && task.priority !== priorityFilter) return false;
     return true;
   });
 
@@ -113,10 +158,22 @@ export default function ProjectDetailPage({ params }) {
     );
   }
 
+  const completionPct = project.totalTasks > 0
+    ? Math.round((project.completedTasks / project.totalTasks) * 100)
+    : 0;
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Project Header Banner */}
       <div className="p-6 sm:p-8 rounded-3xl saas-card space-y-5 relative overflow-hidden">
+        {/* Live update pulse */}
+        {recentlyUpdated && (
+          <span className="absolute top-3 right-3 flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+            Live update
+          </span>
+        )}
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="flex items-start gap-4">
             <div
@@ -138,51 +195,52 @@ export default function ProjectDetailPage({ params }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsCreateTaskOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30 ring-1 ring-white/20"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Task</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsCreateTaskOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30 ring-1 ring-white/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Task</span>
+          </button>
         </div>
 
-        {/* Project Completion Velocity Progress */}
-        <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-6 text-xs text-slate-400">
-            <div>
-              Total tasks: <strong className="text-white font-bold">{project.totalTasks}</strong>
+        {/* Progress bar */}
+        <div className="pt-4 border-t border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center gap-6">
+              <span>Total: <strong className="text-white">{project.totalTasks}</strong></span>
+              <span>Done: <strong className="text-emerald-400">{project.completedTasks}</strong></span>
+              <span>Progress: <strong className="text-indigo-400">{completionPct}%</strong></span>
             </div>
-            <div>
-              Completed: <strong className="text-emerald-400 font-bold">{project.completedTasks}</strong>
-            </div>
-            <div>
-              Velocity: <strong className="text-indigo-400 font-bold">{project.progress}%</strong>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Team:</span>
             <div className="flex -space-x-2">
-              {project.members?.map((m) => (
+              {project.members?.slice(0, 5).map((m) => (
                 <img
                   key={m.id}
-                  src={m.avatarUrl}
+                  src={m.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`}
                   alt={m.name}
                   title={m.name}
                   className="w-6 h-6 rounded-full object-cover ring-2 ring-[#0f172a]"
                 />
               ))}
+              {project.members?.length > 5 && (
+                <div className="w-6 h-6 rounded-full bg-slate-800 ring-2 ring-[#0f172a] flex items-center justify-center text-[9px] font-bold text-slate-400">
+                  +{project.members.length - 5}
+                </div>
+              )}
             </div>
+          </div>
+          <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
+              style={{ width: `${completionPct}%` }}
+            />
           </div>
         </div>
       </div>
 
       {/* Filter & View Switcher Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 rounded-2xl bg-[#090d16] border border-white/5">
-        {/* Left View Switcher Tabs */}
+        {/* View Tabs */}
         <div className="flex items-center gap-1 bg-[#0f1522] p-1 rounded-xl border border-white/5">
           <button
             onClick={() => setViewMode('kanban')}
@@ -208,7 +266,7 @@ export default function ProjectDetailPage({ params }) {
           </button>
         </div>
 
-        {/* Right Search and Dropdown Filters */}
+        {/* Search + Filters */}
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="relative flex-1 sm:w-52">
             <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
@@ -216,8 +274,8 @@ export default function ProjectDetailPage({ params }) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search project tasks..."
-              className="w-full pl-9 pr-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+              placeholder="Search tasks..."
+              className="w-full pl-9 pr-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/40"
             />
           </div>
 
@@ -247,7 +305,7 @@ export default function ProjectDetailPage({ params }) {
         </div>
       </div>
 
-      {/* Main View Area */}
+      {/* Main View */}
       {viewMode === 'kanban' ? (
         <KanbanBoard
           tasks={filteredTasks}
@@ -276,27 +334,26 @@ export default function ProjectDetailPage({ params }) {
               >
                 <div className="col-span-6 sm:col-span-7 flex items-center gap-3">
                   <span className="font-mono text-[10px] font-bold text-indigo-400 px-2 py-0.5 rounded bg-slate-900 border border-indigo-500/20">
-                    {project.key}-{t.id.slice(0, 4)}
+                    {project.key}-{t.id.slice(0, 4).toUpperCase()}
                   </span>
                   <span className="font-bold text-white group-hover:text-indigo-300 transition truncate">{t.title}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700">
-                    {t.status}
-                  </span>
+                  <StatusBadge status={t.status} />
                 </div>
                 <div className="col-span-2">
-                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.priority}</span>
+                  <PriorityBadge priority={t.priority} />
                 </div>
                 <div className="col-span-2 sm:col-span-1 flex justify-end">
                   {t.assignee ? (
                     <img
-                      src={t.assignee.avatarUrl}
+                      src={t.assignee.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${t.assignee.name}`}
                       alt={t.assignee.name}
+                      title={t.assignee.name}
                       className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-700"
                     />
                   ) : (
-                    <span className="text-[10px] text-slate-500">Unassigned</span>
+                    <span className="text-[10px] text-slate-500">—</span>
                   )}
                 </div>
               </div>
@@ -315,7 +372,7 @@ export default function ProjectDetailPage({ params }) {
         />
       )}
 
-      {/* Task Detail Modal Drawer */}
+      {/* Task Detail Modal */}
       {selectedTaskId && (
         <TaskDetailModal
           taskId={selectedTaskId}
@@ -326,5 +383,36 @@ export default function ProjectDetailPage({ params }) {
         />
       )}
     </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }) {
+  const config = {
+    TODO: 'bg-slate-700/60 text-slate-300',
+    IN_PROGRESS: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    REVIEW: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+    DONE: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    CANCELLED: 'bg-red-500/10 text-red-400 border border-red-500/20',
+  };
+  return (
+    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${config[status] || config.TODO}`}>
+      {status?.replace('_', ' ')}
+    </span>
+  );
+}
+
+function PriorityBadge({ priority }) {
+  const config = {
+    LOW: 'text-slate-400',
+    MEDIUM: 'text-blue-400',
+    HIGH: 'text-amber-400',
+    URGENT: 'text-red-400 font-extrabold',
+  };
+  return (
+    <span className={`text-[10px] font-bold uppercase ${config[priority] || 'text-slate-400'}`}>
+      {priority}
+    </span>
   );
 }

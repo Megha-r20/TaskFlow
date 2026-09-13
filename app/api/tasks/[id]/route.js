@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { broadcastEvent } from '@/lib/events';
+import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
 
 export async function GET(req, { params }) {
   try {
@@ -168,7 +168,15 @@ export async function PATCH(req, { params }) {
       return t;
     });
 
-    broadcastEvent('TASK_UPDATED', { task: updatedTask, workspaceId: updatedTask.project.workspaceId });
+    broadcastEvent(EVENT_TYPES.TASK_UPDATED, { task: updatedTask, workspaceId: updatedTask.project.workspaceId });
+
+    // If someone was newly assigned, notify via SSE too
+    if (assigneeId && assigneeId !== existingTask.assigneeId && assigneeId !== user.id) {
+      broadcastEvent(EVENT_TYPES.NOTIFICATION, {
+        userId: assigneeId,
+        workspaceId: updatedTask.project.workspaceId,
+      });
+    }
 
     return NextResponse.json({ task: updatedTask });
   } catch (error) {
@@ -205,7 +213,7 @@ export async function DELETE(req, { params }) {
       },
     });
 
-    broadcastEvent('TASK_DELETED', { taskId: id, workspaceId: task.project.workspaceId });
+    broadcastEvent(EVENT_TYPES.TASK_DELETED, { taskId: id, workspaceId: task.project.workspaceId });
 
     return NextResponse.json({ message: 'Task deleted successfully' });
   } catch (error) {

@@ -17,10 +17,12 @@ import {
   User,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
+import { useRealtime } from '@/components/layout/AppShell';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
 
 export default function DashboardPage() {
   const { activeWorkspace } = useWorkspace();
+  const { registerRealtimeHandler } = useRealtime() || {};
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
@@ -32,6 +34,16 @@ export default function DashboardPage() {
       fetchDashboardStats();
     }
   }, [activeWorkspace?.id]);
+
+  // Refresh dashboard stats when realtime task events arrive
+  useEffect(() => {
+    if (!registerRealtimeHandler || !activeWorkspace) return;
+    const refresh = () => fetchDashboardStats();
+    const u1 = registerRealtimeHandler('TASK_CREATED', refresh);
+    const u2 = registerRealtimeHandler('TASK_UPDATED', refresh);
+    const u3 = registerRealtimeHandler('TASK_DELETED', refresh);
+    return () => { u1?.(); u2?.(); u3?.(); };
+  }, [registerRealtimeHandler, activeWorkspace?.id]);
 
   const fetchDashboardStats = async () => {
     setLoading(true);
