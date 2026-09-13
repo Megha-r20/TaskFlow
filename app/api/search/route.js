@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
 
 export async function GET(req) {
   try {
@@ -13,6 +14,11 @@ export async function GET(req) {
 
     if (!q || !q.trim() || !workspaceId) {
       return NextResponse.json({ projects: [], tasks: [], members: [] });
+    }
+
+    const member = await requireWorkspaceMember(workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden: Access denied to this workspace' }, { status: 403 });
     }
 
     const query = q.trim();

@@ -10,6 +10,19 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
     }
 
+    if (name.trim().length > 100) {
+      return NextResponse.json({ error: 'Name must be 100 characters or less' }, { status: 400 });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return NextResponse.json({ error: 'Please provide a valid email address' }, { status: 400 });
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json({ error: 'Password must be at least 8 characters long' }, { status: 400 });
+    }
+
     const existingUser = await db.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
@@ -20,16 +33,17 @@ export async function POST(req) {
 
     const passwordHash = await hashPassword(password);
     const formattedEmail = email.toLowerCase().trim();
-    const defaultWsName = workspaceName?.trim() || `${name}'s Workspace`;
+    const cleanName = name.trim();
+    const defaultWsName = workspaceName?.trim() || `${cleanName}'s Workspace`;
     const slug = defaultWsName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
 
     const result = await db.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
-          name,
+          name: cleanName,
           email: formattedEmail,
           passwordHash,
-          avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+          avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(cleanName)}`,
         },
       });
 

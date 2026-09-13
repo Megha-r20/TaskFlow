@@ -52,6 +52,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Workspace name is required' }, { status: 400 });
     }
 
+    if (name.trim().length > 100) {
+      return NextResponse.json({ error: 'Workspace name must be 100 characters or less' }, { status: 400 });
+    }
+
     const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
 
     const workspace = await db.$transaction(async (tx) => {

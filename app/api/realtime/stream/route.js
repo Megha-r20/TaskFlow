@@ -1,5 +1,6 @@
 import { events, EVENT_TYPES } from '@/lib/events';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -13,6 +14,13 @@ export async function GET(req) {
 
   const { searchParams } = new URL(req.url);
   const workspaceId = searchParams.get('workspaceId');
+
+  if (workspaceId) {
+    const member = await requireWorkspaceMember(workspaceId, user.id);
+    if (!member) {
+      return new Response('Forbidden', { status: 403 });
+    }
+  }
 
   const encoder = new TextEncoder();
   let controllerRef = null;
