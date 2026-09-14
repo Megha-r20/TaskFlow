@@ -7,12 +7,17 @@ import {
   ListFilter,
   Search,
   Plus,
+  Download,
+  FileSpreadsheet,
+  FileCode,
+  ChevronDown,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
 import KanbanBoard from '@/components/kanban/KanbanBoard';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
+import { exportTasksToCSV, exportTasksToJSON } from '@/lib/exportTasks';
 
 export default function ProjectDetailPage({ params }) {
   const { id: projectId } = use(params);
@@ -35,9 +40,10 @@ export default function ProjectDetailPage({ params }) {
   const [priorityFilter, setPriorityFilter] = useState('');
   const [assigneeFilter, setAssigneeFilter] = useState('');
 
-  // Modals
+  // Modals & Menus
   const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId || null);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   // Live indicator — briefly flash when a realtime update arrives
   const [recentlyUpdated, setRecentlyUpdated] = useState(false);
@@ -202,13 +208,53 @@ export default function ProjectDetailPage({ params }) {
             </div>
           </div>
 
-          <button
-            onClick={() => setIsCreateTaskOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition shadow-xs cursor-pointer self-start md:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Task</span>
-          </button>
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            {/* Export Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsExportOpen((prev) => !prev)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-[var(--tf-text-main)] font-semibold text-xs transition shadow-xs cursor-pointer"
+                title="Export tasks"
+              >
+                <Download className="w-4 h-4 text-amber-500" />
+                <span>Export</span>
+                <ChevronDown className="w-3 h-3 text-[var(--tf-text-muted)]" />
+              </button>
+
+              {isExportOpen && (
+                <div className="absolute right-0 mt-1 w-44 bg-[var(--tf-modal-bg)] border border-[var(--tf-border)] rounded-lg shadow-2xl z-30 py-1 divide-y divide-[var(--tf-border)]">
+                  <button
+                    onClick={() => {
+                      exportTasksToCSV(filteredTasks, `project_${project.key}`);
+                      setIsExportOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-2 cursor-pointer"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                    <span>CSV Spreadsheet</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      exportTasksToJSON(filteredTasks, `project_${project.key}`);
+                      setIsExportOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-2 cursor-pointer"
+                  >
+                    <FileCode className="w-4 h-4 text-blue-500" />
+                    <span>JSON Data</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setIsCreateTaskOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition shadow-xs cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Task</span>
+            </button>
+          </div>
         </div>
 
         {/* Progress bar */}

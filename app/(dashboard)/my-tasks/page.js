@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { CheckSquare, Calendar, FolderKanban, Clock, ArrowRight, Plus, Search, Filter } from 'lucide-react';
+import { CheckSquare, Calendar, FolderKanban, Clock, ArrowRight, Plus, Search, Filter, Download, FileSpreadsheet, FileCode, ChevronDown } from 'lucide-react';
 import { useWorkspace, useRealtime } from '@/components/layout/AppShell';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
+import { exportTasksToCSV, exportTasksToJSON } from '@/lib/exportTasks';
 
 export default function MyTasksPage() {
   const { user, activeWorkspace, openCreateTask } = useWorkspace();
@@ -12,6 +13,7 @@ export default function MyTasksPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,6 +94,45 @@ export default function MyTasksPage() {
           <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold font-mono">
             {filteredTasks.length} / {tasks.length} Assigned
           </span>
+
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsExportOpen((prev) => !prev)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-[var(--tf-text-main)] font-semibold text-xs transition shadow-xs cursor-pointer"
+              title="Export tasks"
+            >
+              <Download className="w-4 h-4 text-amber-500" />
+              <span>Export</span>
+              <ChevronDown className="w-3 h-3 text-[var(--tf-text-muted)]" />
+            </button>
+
+            {isExportOpen && (
+              <div className="absolute right-0 mt-1 w-44 bg-[var(--tf-modal-bg)] border border-[var(--tf-border)] rounded-lg shadow-2xl z-30 py-1 divide-y divide-[var(--tf-border)]">
+                <button
+                  onClick={() => {
+                    exportTasksToCSV(filteredTasks, 'my_tasks');
+                    setIsExportOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-2 cursor-pointer"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
+                  <span>CSV Spreadsheet</span>
+                </button>
+                <button
+                  onClick={() => {
+                    exportTasksToJSON(filteredTasks, 'my_tasks');
+                    setIsExportOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-2 cursor-pointer"
+                >
+                  <FileCode className="w-4 h-4 text-blue-500" />
+                  <span>JSON Data</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => openCreateTask()}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
