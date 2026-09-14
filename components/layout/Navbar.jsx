@@ -199,36 +199,6 @@ export default function Navbar({ onOpenMobileSidebar }) {
           <Search className="w-4 h-4" />
         </button>
 
-        {/* Focus Mode Button */}
-        <button
-          onClick={() => openFocusMode()}
-          className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs"
-          title="Focus Mode & Pomodoro Timer"
-        >
-          <BrainCircuit className="w-3.5 h-3.5 text-amber-500" />
-          <span className="hidden sm:inline">Focus Mode</span>
-        </button>
-
-        {/* Automations Button */}
-        <button
-          onClick={openAutomations}
-          className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs"
-          title="Workspace Automation Rules"
-        >
-          <Zap className="w-3.5 h-3.5 text-amber-500" />
-          <span className="hidden sm:inline">Automations</span>
-        </button>
-
-        {/* AI Assistant Button */}
-        <button
-          onClick={openAiStandup}
-          className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs"
-          title="AI Assistant & Daily Standup"
-        >
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          <span className="hidden sm:inline">AI Standup</span>
-        </button>
-
         {/* Keyboard Shortcuts Trigger Button */}
         <button
           onClick={openShortcuts}
