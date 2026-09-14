@@ -123,7 +123,7 @@ export default function Navbar({ onOpenMobileSidebar }) {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
+      router.push('/');
       router.refresh();
     } catch (err) {
       console.error('Logout error:', err);
