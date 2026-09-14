@@ -9,6 +9,7 @@ import CreateTaskModal from '../modals/CreateTaskModal';
 import KeyboardShortcutsModal from '../modals/KeyboardShortcutsModal';
 import AiStandupModal from '../modals/AiStandupModal';
 import AutomationRulesModal from '../modals/AutomationRulesModal';
+import FocusModeModal from '../modals/FocusModeModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -29,6 +30,8 @@ export default function AppShell({ children }) {
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isAiStandupOpen, setIsAiStandupOpen] = useState(false);
   const [isAutomationsOpen, setIsAutomationsOpen] = useState(false);
+  const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
+  const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -150,6 +153,10 @@ export default function AppShell({ children }) {
         openShortcuts,
         openAiStandup: () => setIsAiStandupOpen(true),
         openAutomations: () => setIsAutomationsOpen(true),
+        openFocusMode: (task = null) => {
+          setFocusTask(task);
+          setIsFocusModeOpen(true);
+        },
       }}
     >
       <RealtimeContext.Provider
@@ -219,6 +226,15 @@ export default function AppShell({ children }) {
           <AutomationRulesModal
             isOpen={isAutomationsOpen}
             onClose={() => setIsAutomationsOpen(false)}
+          />
+        )}
+
+        {/* Focus Mode & Pomodoro Timer Modal */}
+        {isFocusModeOpen && (
+          <FocusModeModal
+            isOpen={isFocusModeOpen}
+            initialTask={focusTask}
+            onClose={() => setIsFocusModeOpen(false)}
           />
         )}
       </RealtimeContext.Provider>

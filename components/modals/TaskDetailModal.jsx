@@ -13,12 +13,13 @@ import {
   AlertTriangle,
   Tag,
   CheckCircle2,
+  BrainCircuit,
 } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
 import { useRealtime } from '../layout/AppShell';
 
 export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onDelete }) {
-  const { user, activeWorkspace } = useWorkspace();
+  const { user, activeWorkspace, openFocusMode } = useWorkspace();
   const { registerRealtimeHandler } = useRealtime() || {};
   const [task, setTask] = useState(null);
   const [members, setMembers] = useState([]);
@@ -179,6 +180,19 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
             <span className="text-xs text-[var(--tf-text-muted)] font-medium">in {task?.project?.name}</span>
           </div>
           <div className="flex items-center gap-2">
+            {task && (
+              <button
+                onClick={() => {
+                  onClose();
+                  openFocusMode(task);
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                title="Focus Mode Pomodoro for this task"
+              >
+                <BrainCircuit className="w-3.5 h-3.5" />
+                <span>Focus Task</span>
+              </button>
+            )}
             <button
               onClick={handleDeleteTask}
               className="p-2 rounded-lg text-[var(--tf-text-muted)] hover:text-red-500 hover:bg-red-500/10 transition"
