@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Zap, X, Plus, Trash2, CheckCircle, ArrowRight, UserCheck, Play, Power, ShieldAlert } from 'lucide-react';
+import { Zap, X, Plus, Trash2, CheckCircle, ArrowRight, UserCheck, Play, Power, ShieldAlert, Edit2, Save } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
 
 export default function AutomationRulesModal({ isOpen, onClose }) {
@@ -18,6 +18,13 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
   const [actionValue, setActionValue] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit rule state
+  const [editingRuleId, setEditingRuleId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editTriggerValue, setEditTriggerValue] = useState('REVIEW');
+  const [editActionValue, setEditActionValue] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     if (isOpen && activeWorkspace) {
@@ -86,6 +93,46 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
       console.error('Create rule error:', err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const startEditRule = (rule) => {
+    setEditingRuleId(rule.id);
+    setEditName(rule.name);
+    setEditTriggerValue(rule.triggerValue);
+    setEditActionValue(rule.actionValue);
+  };
+
+  const cancelEdit = () => {
+    setEditingRuleId(null);
+  };
+
+  const handleSaveEdit = async (ruleId) => {
+    if (!canManage) return;
+    setSavingEdit(true);
+
+    try {
+      const res = await fetch(`/api/automations/${ruleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName.trim(),
+          triggerValue: editTriggerValue,
+          actionValue: editActionValue,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setRules((prev) =>
+          prev.map((r) => (r.id === ruleId ? { ...r, ...data.rule } : r))
+        );
+        setEditingRuleId(null);
+      }
+    } catch (err) {
+      console.error('Save edit rule error:', err);
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -163,7 +210,7 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
           {!canManage && !loading && (
             <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex items-center gap-2 font-medium">
               <ShieldAlert className="w-4 h-4 shrink-0" />
-              <span>Workspace members can view rules. Only Workspace Admins and Owners can create or modify automations.</span>
+              <span>Workspace members can view rules. Only Workspace Admins and Owners can create, edit, or modify automations.</span>
             </div>
           )}
 
@@ -273,6 +320,88 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
             <div className="space-y-3">
               {rules.map((rule) => {
                 const assignedMember = members.find((m) => m.userId === rule.actionValue);
+                const isEditingThis = editingRuleId === rule.id;
+
+                if (isEditingThis) {
+                  return (
+                    <div key={rule.id} className="p-4 rounded-xl bg-[var(--tf-sidebar)] border border-amber-500/40 space-y-3 shadow-md">
+                      <div className="flex items-center justify-between border-b border-[var(--tf-border)] pb-2">
+                        <span className="text-xs font-bold text-[var(--tf-text-main)] flex items-center gap-1.5">
+                          <Edit2 className="w-3.5 h-3.5 text-amber-500" />
+                          Edit Automation Rule
+                        </span>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="text-[11px] text-[var(--tf-text-subtle)] hover:text-[var(--tf-text-main)] cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-mono uppercase text-[var(--tf-text-subtle)] mb-1">Rule Name</label>
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-[var(--tf-text-subtle)] mb-1">WHEN status changes to</label>
+                          <select
+                            value={editTriggerValue}
+                            onChange={(e) => setEditTriggerValue(e.target.value)}
+                            className="w-full px-2.5 py-1.5 text-xs bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 font-mono"
+                          >
+                            <option value="REVIEW">Review / QA</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="DONE">Done / Completed</option>
+                            <option value="TODO">Todo</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-mono uppercase text-[var(--tf-text-subtle)] mb-1">THEN automatically assign to</label>
+                          <select
+                            value={editActionValue}
+                            onChange={(e) => setEditActionValue(e.target.value)}
+                            className="w-full px-2.5 py-1.5 text-xs bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500"
+                          >
+                            {members.map((m) => (
+                              <option key={m.userId} value={m.userId}>
+                                {m.name} ({m.role})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="px-3 py-1 text-xs text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSaveEdit(rule.id)}
+                          disabled={savingEdit}
+                          className="px-4 py-1.5 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          <span>{savingEdit ? 'Saving...' : 'Save Changes'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={rule.id}
@@ -313,7 +442,14 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
                     </div>
 
                     {canManage && (
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          onClick={() => startEditRule(rule)}
+                          className="p-1.5 text-[var(--tf-text-muted)] hover:text-amber-500 hover:bg-amber-500/10 rounded transition cursor-pointer"
+                          title="Edit rule"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => deleteRule(rule.id)}
                           className="p-1.5 text-[var(--tf-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded transition cursor-pointer"

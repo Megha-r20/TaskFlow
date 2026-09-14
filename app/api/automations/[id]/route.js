@@ -23,6 +23,8 @@ export async function PATCH(req, { params }) {
       data: {
         ...(typeof body.enabled === 'boolean' ? { enabled: body.enabled } : {}),
         ...(body.name ? { name: body.name } : {}),
+        ...(body.triggerValue ? { triggerValue: body.triggerValue } : {}),
+        ...(body.actionValue ? { actionValue: body.actionValue } : {}),
       },
     });
 
