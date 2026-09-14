@@ -33,6 +33,14 @@ export default function Navbar({ onOpenMobileSidebar }) {
   const notifPanelRef = useRef(null);
   const userMenuRef = useRef(null);
 
+  const [shortcutLabel, setShortcutLabel] = useState('Ctrl K');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && /Mac/i.test(navigator.platform || '')) {
+      setShortcutLabel('⌘K');
+    }
+  }, []);
+
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications');
@@ -165,14 +173,14 @@ export default function Navbar({ onOpenMobileSidebar }) {
       <div className="hidden md:flex flex-1 max-w-md mx-6">
         <button
           onClick={openSearch}
-          className="w-full flex items-center justify-between px-3 py-1 bg-[var(--tf-input-bg)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] rounded-md text-[var(--tf-text-muted)] text-xs transition"
+          className="w-full h-9 px-3 bg-[var(--tf-input-bg)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] hover:border-amber-500/40 rounded-lg text-xs text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] transition shadow-2xs group flex items-center justify-between cursor-pointer"
         >
-          <div className="flex items-center gap-2">
-            <Search className="w-3.5 h-3.5 text-[var(--tf-text-muted)]" />
+          <div className="flex items-center gap-2.5">
+            <Search className="w-3.5 h-3.5 text-[var(--tf-text-muted)] group-hover:text-amber-500 transition" />
             <span>Search tasks, projects, members...</span>
           </div>
-          <kbd className="px-1.5 py-0.2 text-[10px] font-mono bg-[var(--tf-bg)] text-[var(--tf-text-subtle)] border border-[var(--tf-border)] rounded">
-            ⌘K
+          <kbd className="h-5 px-1.5 flex items-center justify-center text-[10px] font-mono font-semibold rounded bg-[var(--tf-bg)] text-[var(--tf-text-subtle)] border border-[var(--tf-border)] group-hover:border-amber-500/30 group-hover:text-amber-500 transition shadow-2xs">
+            {shortcutLabel}
           </kbd>
         </button>
       </div>
