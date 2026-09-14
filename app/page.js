@@ -230,21 +230,21 @@ export default function LandingPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-mono font-bold shadow-xs">
-              <ShieldCheck className="w-4 h-4 animate-pulse text-amber-400" />
-              <span>Production-Grade SaaS Platform • Secure & Multi-Tenant</span>
+              <Sparkles className="w-4 h-4 animate-pulse text-amber-400" />
+              <span>Enterprise-Grade Collaboration Workspace</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[var(--tf-text-main)] max-w-4xl mx-auto leading-[1.1]">
-              One workspace for{' '}
+              The All-in-One Workspace for{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500">
-                Tasks, Huddles & Docs.
+                Modern Product Teams.
               </span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-base sm:text-xl text-[var(--tf-text-muted)] max-w-3xl mx-auto leading-relaxed font-normal">
-              TaskFlow merges real-time WebRTC audio/video huddles, drag-and-drop Kanban boards, Notion-style workspace wiki docs, time tracking, automated OKRs, and encrypted client links into one high-velocity team platform.
+              Streamline tasks, live video huddles, team docs, and sprint analytics into one powerful platform.
             </p>
 
             {/* Hero CTAs */}
