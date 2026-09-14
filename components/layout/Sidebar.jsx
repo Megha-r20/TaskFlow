@@ -17,13 +17,14 @@ import {
   BrainCircuit,
   Sparkles,
   Calendar,
+  Palette,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import CreateProjectModal from '../modals/CreateProjectModal';
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations, openFocusMode, openAiStandup, openGanttTimeline } = useWorkspace();
+  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations, openFocusMode, openAiStandup, openGanttTimeline, openWhiteboard } = useWorkspace();
   const [projects, setProjects] = useState([]);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -273,6 +274,17 @@ export default function Sidebar({ isOpen, onClose }) {
               >
                 <Calendar className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
                 <span className="font-semibold text-[var(--tf-text-main)]">Gantt Timeline</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  openWhiteboard();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
+              >
+                <Palette className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-[var(--tf-text-main)]">Visual Whiteboard</span>
               </button>
             </div>
           </div>

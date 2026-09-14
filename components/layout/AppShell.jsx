@@ -11,6 +11,7 @@ import AiStandupModal from '../modals/AiStandupModal';
 import AutomationRulesModal from '../modals/AutomationRulesModal';
 import FocusModeModal from '../modals/FocusModeModal';
 import GanttTimelineModal from '../modals/GanttTimelineModal';
+import WhiteboardModal from '../modals/WhiteboardModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -33,6 +34,7 @@ export default function AppShell({ children }) {
   const [isAutomationsOpen, setIsAutomationsOpen] = useState(false);
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
   const [isGanttOpen, setIsGanttOpen] = useState(false);
+  const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -160,6 +162,7 @@ export default function AppShell({ children }) {
           setIsFocusModeOpen(true);
         },
         openGanttTimeline: () => setIsGanttOpen(true),
+        openWhiteboard: () => setIsWhiteboardOpen(true),
       }}
     >
       <RealtimeContext.Provider
@@ -199,7 +202,6 @@ export default function AppShell({ children }) {
             defaultProjectId={createTaskDefaultProjId}
             onClose={() => setIsCreateTaskOpen(false)}
             onSuccess={() => {
-              // Trigger realtime handler if registered or refresh
               if (realtimeHandlers['TASK_CREATED']) {
                 realtimeHandlers['TASK_CREATED']();
               }
@@ -246,6 +248,14 @@ export default function AppShell({ children }) {
           <GanttTimelineModal
             isOpen={isGanttOpen}
             onClose={() => setIsGanttOpen(false)}
+          />
+        )}
+
+        {/* Visual Whiteboard & Mind Map Modal */}
+        {isWhiteboardOpen && (
+          <WhiteboardModal
+            isOpen={isWhiteboardOpen}
+            onClose={() => setIsWhiteboardOpen(false)}
           />
         )}
       </RealtimeContext.Provider>

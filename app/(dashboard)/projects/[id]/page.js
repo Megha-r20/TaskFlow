@@ -12,11 +12,13 @@ import {
   FileCode,
   ChevronDown,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
 import KanbanBoard from '@/components/kanban/KanbanBoard';
 import GanttChart from '@/components/gantt/GanttChart';
+import WhiteboardCanvas from '@/components/whiteboard/WhiteboardCanvas';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
 import { exportTasksToCSV, exportTasksToJSON } from '@/lib/exportTasks';
@@ -330,6 +332,17 @@ export default function ProjectDetailPage({ params }) {
             <Calendar className="w-3.5 h-3.5" />
             <span>Gantt Timeline</span>
           </button>
+          <button
+            onClick={() => setViewMode('whiteboard')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition cursor-pointer ${
+              viewMode === 'whiteboard'
+                ? 'bg-amber-500 text-white font-semibold shadow-xs'
+                : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Whiteboard & Mind Map</span>
+          </button>
         </div>
 
         {/* Search + Filters */}
@@ -407,6 +420,13 @@ export default function ProjectDetailPage({ params }) {
           tasks={filteredTasks}
           onTaskClick={(t) => setSelectedTaskId(t.id)}
         />
+      ) : viewMode === 'whiteboard' ? (
+        <div className="h-[650px]">
+          <WhiteboardCanvas
+            projectId={projectId}
+            onTaskCreated={() => fetchProject()}
+          />
+        </div>
       ) : (
         /* List View */
         <div className="bg-[#202020] rounded-lg border border-[#333] overflow-hidden divide-y divide-[#333]">
