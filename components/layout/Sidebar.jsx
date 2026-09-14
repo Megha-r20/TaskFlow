@@ -26,7 +26,7 @@ import CreateProjectModal from '../modals/CreateProjectModal';
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations, openFocusMode, openAiStandup, openGanttTimeline, openWhiteboard, openWorkloadPlanner, startHuddle } = useWorkspace();
+  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations, openFocusMode, openAiStandup, openGanttTimeline, openWhiteboard, openWorkloadPlanner, startHuddle, openScheduleMeeting } = useWorkspace();
   const [projects, setProjects] = useState([]);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -302,13 +302,24 @@ export default function Sidebar({ isOpen, onClose }) {
 
               <button
                 onClick={() => {
+                  openScheduleMeeting();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
+              >
+                <Calendar className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-[var(--tf-text-main)]">Schedule Huddle & Meeting</span>
+              </button>
+
+              <button
+                onClick={() => {
                   startHuddle();
                   onClose();
                 }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
               >
                 <Radio className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
-                <span className="font-semibold text-[var(--tf-text-main)]">Team Huddle</span>
+                <span className="font-semibold text-[var(--tf-text-main)]">Start Live Huddle</span>
               </button>
             </div>
           </div>
