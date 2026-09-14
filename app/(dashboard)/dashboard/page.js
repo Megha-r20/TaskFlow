@@ -12,13 +12,14 @@ import {
   Calendar,
   ArrowRight,
   Plus,
+  Sparkles,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
 
 export default function DashboardPage() {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, openAiStandup } = useWorkspace();
   const { registerRealtimeHandler } = useRealtime() || {};
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
@@ -91,6 +92,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3 z-10">
+          <button
+            onClick={openAiStandup}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-semibold text-xs transition border border-amber-500/30 shadow-xs cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 animate-pulse" />
+            <span>✨ AI Standup</span>
+          </button>
           <button
             onClick={() => setIsCreateTaskOpen(true)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition border border-[var(--tf-border)] shadow-xs cursor-pointer"

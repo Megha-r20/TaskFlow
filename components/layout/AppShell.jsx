@@ -7,6 +7,7 @@ import Navbar from './Navbar';
 import GlobalSearchModal from '../modals/GlobalSearchModal';
 import CreateTaskModal from '../modals/CreateTaskModal';
 import KeyboardShortcutsModal from '../modals/KeyboardShortcutsModal';
+import AiStandupModal from '../modals/AiStandupModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -25,6 +26,7 @@ export default function AppShell({ children }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isAiStandupOpen, setIsAiStandupOpen] = useState(false);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -144,6 +146,7 @@ export default function AppShell({ children }) {
         openSearch: () => setIsSearchOpen(true),
         openCreateTask,
         openShortcuts,
+        openAiStandup: () => setIsAiStandupOpen(true),
       }}
     >
       <RealtimeContext.Provider
@@ -197,6 +200,14 @@ export default function AppShell({ children }) {
           <KeyboardShortcutsModal
             isOpen={isShortcutsOpen}
             onClose={() => setIsShortcutsOpen(false)}
+          />
+        )}
+
+        {/* AI Standup & Breakdown Modal */}
+        {isAiStandupOpen && (
+          <AiStandupModal
+            isOpen={isAiStandupOpen}
+            onClose={() => setIsAiStandupOpen(false)}
           />
         )}
       </RealtimeContext.Provider>

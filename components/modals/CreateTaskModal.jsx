@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, CheckSquare, Calendar, User, Tag, AlertCircle } from 'lucide-react';
+import { X, CheckSquare, Calendar, User, Tag, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
 
 export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onSuccess }) {
@@ -17,12 +17,40 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
   const [dueDate, setDueDate] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     if (activeWorkspace) {
       fetchData();
     }
   }, [activeWorkspace?.id]);
+
+  const handleAiBreakdown = async () => {
+    if (!title.trim()) {
+      setError('Please enter a task title first to use AI breakdown.');
+      return;
+    }
+    setError('');
+    setAiLoading(true);
+    try {
+      const res = await fetch('/api/ai/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'BREAKDOWN', title, description }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.subtasks && data.subtasks.length > 0) {
+          const formattedSubtasks = '\n\n**Subtasks Breakdown:**\n' + data.subtasks.map((s, idx) => `- [ ] ${s}`).join('\n');
+          setDescription((prev) => (prev ? prev + formattedSubtasks : formattedSubtasks.trim()));
+        }
+      }
+    } catch (err) {
+      console.error('AI breakdown error:', err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -139,15 +167,30 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
-              Description
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider">
+                Description
+              </label>
+              <button
+                type="button"
+                onClick={handleAiBreakdown}
+                disabled={aiLoading}
+                className="text-[11px] font-medium text-amber-500 hover:text-amber-400 flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
+              >
+                {aiLoading ? (
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3 h-3" />
+                )}
+                <span>{aiLoading ? 'Generating...' : '✨ AI Auto-Breakdown'}</span>
+              </button>
+            </div>
             <textarea
-              rows={3}
+              rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add technical specification, requirements, or links..."
-              className="w-full px-3 py-2 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full px-3 py-2 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500 resize-none font-mono"
             />
           </div>
 
