@@ -231,7 +231,7 @@ export default function LandingPage() {
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-mono font-bold shadow-xs">
               <Sparkles className="w-4 h-4 animate-pulse text-amber-400" />
-              <span>Enterprise-Grade Collaboration Workspace</span>
+              <span>Next-Gen Team Workspace</span>
             </div>
 
             {/* Headline */}
