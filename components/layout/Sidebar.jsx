@@ -67,8 +67,8 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Brand & Active Workspace Header */}
         <div className="p-3.5 border-b border-[var(--tf-border)] space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[var(--tf-card)] border border-[var(--tf-border)] flex items-center justify-center text-sm font-bold shadow-sm">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-7 h-7 rounded-lg bg-[var(--tf-card)] border border-[var(--tf-border)] flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform">
                 📋
               </div>
               <div className="flex flex-col">
@@ -79,7 +79,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   </span>
                 </span>
               </div>
-            </div>
+            </Link>
             <button
               onClick={onClose}
               className="lg:hidden p-1 rounded-md text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]"
