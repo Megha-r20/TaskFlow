@@ -1,8 +1,8 @@
-# TaskFlow Pro 2.0 — Enterprise Project & Collaboration Platform
+# TaskFlow — Enterprise Project & Collaboration Platform
 
-TaskFlow Pro is a high-velocity, real-time project management and team collaboration suite built on **Next.js 15 App Router**, **WebRTC video/audio streaming**, **Server-Sent Events (SSE)**, and **Prisma ORM**.
+TaskFlow is a high-velocity, real-time project management and team collaboration suite built on **Next.js 15 App Router**, **WebRTC video/audio streaming**, **Server-Sent Events (SSE)**, and **Prisma ORM**.
 
-![TaskFlow Pro Landing Page](./public/landing_preview.png)
+![TaskFlow Landing Page](./public/landing_preview.png)
 
 ---
 

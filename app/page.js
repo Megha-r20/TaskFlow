@@ -148,9 +148,6 @@ export default function LandingPage() {
             <div className="flex flex-col">
               <span className="text-base font-bold text-[var(--tf-text-main)] tracking-tight flex items-center gap-1.5">
                 TaskFlow
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">
-                  Pro 2.0
-                </span>
               </span>
             </div>
           </Link>
@@ -541,7 +538,7 @@ export default function LandingPage() {
       <footer className="border-t border-[var(--tf-border)] bg-[var(--tf-bg)] py-8 text-center text-xs font-mono text-[var(--tf-text-subtle)]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[var(--tf-text-main)]">TaskFlow Pro 2.0</span>
+            <span className="font-bold text-[var(--tf-text-main)]">TaskFlow</span>
             <span>• Next-Gen Enterprise Workspace</span>
           </div>
           <p>© 2026 TaskFlow Inc. Built for high-velocity teams.</p>

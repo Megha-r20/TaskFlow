@@ -89,11 +89,8 @@ export default function Sidebar({ isOpen, onClose }) {
                 className="w-7 h-7 rounded-lg border border-[var(--tf-border)] object-cover shadow-sm group-hover:scale-105 transition-transform"
               />
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-[var(--tf-text-main)] tracking-tight flex items-center gap-1.5">
+                <span className="text-sm font-bold text-[var(--tf-text-main)] tracking-tight">
                   TaskFlow
-                  <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded bg-[var(--tf-card-hover)] text-[var(--tf-text-muted)] border border-[var(--tf-border)]">
-                    Pro
-                  </span>
                 </span>
               </div>
             </Link>
