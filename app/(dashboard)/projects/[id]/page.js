@@ -33,6 +33,7 @@ export default function ProjectDetailPage({ params }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState('');
 
   // Modals
   const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId || null);
@@ -100,7 +101,6 @@ export default function ProjectDetailPage({ params }) {
     const u1 = registerRealtimeHandler('TASK_CREATED', handleTaskCreated);
     const u2 = registerRealtimeHandler('TASK_UPDATED', handleTaskUpdated);
     const u3 = registerRealtimeHandler('TASK_DELETED', handleTaskDeleted);
-
     return () => {
       u1?.();
       u2?.();
@@ -129,26 +129,37 @@ export default function ProjectDetailPage({ params }) {
     setIsCreateTaskOpen(true);
   };
 
+  const hasActiveFilters = searchQuery || statusFilter || priorityFilter || assigneeFilter;
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setPriorityFilter('');
+    setAssigneeFilter('');
+  };
+
   // Filter tasks logic
   const filteredTasks = tasks.filter((task) => {
     if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (statusFilter && task.status !== statusFilter) return false;
     if (priorityFilter && task.priority !== priorityFilter) return false;
+    if (assigneeFilter === 'unassigned' && task.assigneeId) return false;
+    if (assigneeFilter && assigneeFilter !== 'unassigned' && task.assigneeId !== assigneeFilter) return false;
     return true;
   });
 
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
-        <div className="h-28 bg-[#202020] rounded-lg border border-[#333]" />
-        <div className="h-96 bg-[#202020] rounded-lg border border-[#333]" />
+        <div className="h-28 bg-[var(--tf-card)] rounded-xl border border-[var(--tf-border)]" />
+        <div className="h-96 bg-[var(--tf-card)] rounded-xl border border-[var(--tf-border)]" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="py-20 text-center text-stone-400 font-mono text-xs">
+      <div className="py-20 text-center text-[var(--tf-text-muted)] font-mono text-xs">
         Project not found or access denied.
       </div>
     );
@@ -160,12 +171,12 @@ export default function ProjectDetailPage({ params }) {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Project Header Banner - Clean Style */}
-      <div className="p-5 sm:p-6 rounded-lg bg-[#202020] border border-[#333] space-y-4 relative overflow-hidden">
+      {/* Project Header Banner - Design Tokens */}
+      <div className="p-5 sm:p-6 rounded-xl bg-[var(--tf-card)] border border-[var(--tf-border)] space-y-4 relative overflow-hidden shadow-2xl transition-colors duration-150">
         {/* Live update pulse */}
         {recentlyUpdated && (
-          <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-mono font-semibold text-emerald-400 animate-pulse">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+          <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-mono font-semibold text-emerald-500 animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
             Live update
           </span>
         )}
@@ -173,19 +184,19 @@ export default function ProjectDetailPage({ params }) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="flex items-start gap-3.5">
             <div
-              className="w-10 h-10 rounded-md flex items-center justify-center text-white font-mono font-bold text-sm shrink-0 border border-white/10"
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-mono font-bold text-sm shrink-0 border border-white/10 shadow-xs"
               style={{ backgroundColor: project.color || '#3b82f6' }}
             >
               {project.key}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-xl font-bold text-[#e3e3e3] tracking-tight">{project.name}</h2>
+                <h2 className="text-xl font-bold text-[var(--tf-text-main)] tracking-tight">{project.name}</h2>
                 <span className="px-2 py-0.2 text-[10px] font-mono uppercase rounded tf-tag-blue">
                   {project.status}
                 </span>
               </div>
-              <p className="text-xs text-stone-400 mt-1 max-w-2xl">
+              <p className="text-xs text-[var(--tf-text-muted)] mt-1 max-w-2xl">
                 {project.description || 'No description set for this project.'}
               </p>
             </div>
@@ -193,20 +204,20 @@ export default function ProjectDetailPage({ params }) {
 
           <button
             onClick={() => setIsCreateTaskOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#2c2c2c] hover:bg-[#333] text-[#e3e3e3] font-semibold text-xs transition border border-white/10 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold text-xs transition shadow-xs cursor-pointer self-start md:self-auto"
           >
-            <Plus className="w-4 h-4 text-amber-400" />
+            <Plus className="w-4 h-4" />
             <span>Create Task</span>
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="pt-3 border-t border-[#333] space-y-2">
-          <div className="flex items-center justify-between text-xs text-stone-400 font-mono">
+        <div className="pt-3 border-t border-[var(--tf-border)] space-y-2">
+          <div className="flex items-center justify-between text-xs text-[var(--tf-text-muted)] font-mono">
             <div className="flex items-center gap-5">
-              <span>Total: <strong className="text-[#e3e3e3]">{project.totalTasks}</strong></span>
-              <span>Done: <strong className="text-emerald-400">{project.completedTasks}</strong></span>
-              <span>Progress: <strong className="text-amber-400">{completionPct}%</strong></span>
+              <span>Total: <strong className="text-[var(--tf-text-main)]">{project.totalTasks}</strong></span>
+              <span>Done: <strong className="text-emerald-500">{project.completedTasks}</strong></span>
+              <span>Progress: <strong className="text-amber-500">{completionPct}%</strong></span>
             </div>
             <div className="flex -space-x-1.5">
               {project.members?.slice(0, 5).map((m) => (
@@ -215,19 +226,19 @@ export default function ProjectDetailPage({ params }) {
                   src={m.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`}
                   alt={m.name}
                   title={m.name}
-                  className="w-5 h-5 rounded-full object-cover border border-[#333]"
+                  className="w-5 h-5 rounded-full object-cover border border-[var(--tf-border)]"
                 />
               ))}
               {project.members?.length > 5 && (
-                <div className="w-5 h-5 rounded-full bg-[#191919] border border-[#333] flex items-center justify-center text-[9px] font-mono text-stone-400">
+                <div className="w-5 h-5 rounded-full bg-[var(--tf-sidebar)] border border-[var(--tf-border)] flex items-center justify-center text-[9px] font-mono text-[var(--tf-text-subtle)]">
                   +{project.members.length - 5}
                 </div>
               )}
             </div>
           </div>
-          <div className="h-1.5 bg-[#171717] rounded flex p-0.5 border border-[#333]">
+          <div className="h-2 bg-[var(--tf-sidebar)] rounded-full flex p-0.5 border border-[var(--tf-border)] overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded transition-all duration-300"
+              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
               style={{ width: `${completionPct}%` }}
             />
           </div>
@@ -235,15 +246,15 @@ export default function ProjectDetailPage({ params }) {
       </div>
 
       {/* Filter & View Switcher Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-lg bg-[#202020] border border-[#333]">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 rounded-xl bg-[var(--tf-card)] border border-[var(--tf-border)] shadow-xs transition-colors duration-150">
         {/* View Tabs */}
-        <div className="flex items-center gap-1 bg-[#191919] p-1 rounded-md border border-[#333]">
+        <div className="flex items-center gap-1 bg-[var(--tf-bg)] p-1 rounded-lg border border-[var(--tf-border)]">
           <button
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition cursor-pointer ${
               viewMode === 'kanban'
-                ? 'bg-[#2c2c2c] text-white font-semibold border border-white/10 shadow-sm'
-                : 'text-stone-400 hover:text-white'
+                ? 'bg-amber-500 text-white font-semibold shadow-xs'
+                : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
             }`}
           >
             <FolderKanban className="w-3.5 h-3.5" />
@@ -251,10 +262,10 @@ export default function ProjectDetailPage({ params }) {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition cursor-pointer ${
               viewMode === 'list'
-                ? 'bg-[#2c2c2c] text-white font-semibold border border-white/10 shadow-sm'
-                : 'text-stone-400 hover:text-white'
+                ? 'bg-amber-500 text-white font-semibold shadow-xs'
+                : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
             }`}
           >
             <ListFilter className="w-3.5 h-3.5" />
@@ -264,21 +275,21 @@ export default function ProjectDetailPage({ params }) {
 
         {/* Search + Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 sm:w-48">
-            <Search className="w-3.5 h-3.5 text-stone-500 absolute left-2.5 top-2" />
+          <div className="relative flex-1 sm:w-44">
+            <Search className="w-3.5 h-3.5 text-[var(--tf-text-subtle)] absolute left-2.5 top-2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
-              className="w-full pl-8 pr-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs text-[#e3e3e3] placeholder-stone-500 focus:outline-none focus:border-stone-400"
+              className="w-full pl-8 pr-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs font-mono text-stone-300 focus:outline-none"
+            className="px-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs font-mono text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 cursor-pointer"
           >
             <option value="">All Statuses</option>
             <option value="TODO">Todo</option>
@@ -290,7 +301,7 @@ export default function ProjectDetailPage({ params }) {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs font-mono text-stone-300 focus:outline-none"
+            className="px-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs font-mono text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 cursor-pointer"
           >
             <option value="">All Priorities</option>
             <option value="LOW">Low</option>
@@ -298,6 +309,29 @@ export default function ProjectDetailPage({ params }) {
             <option value="HIGH">High</option>
             <option value="URGENT">Urgent</option>
           </select>
+
+          <select
+            value={assigneeFilter}
+            onChange={(e) => setAssigneeFilter(e.target.value)}
+            className="px-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs font-mono text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 cursor-pointer"
+          >
+            <option value="">All Assignees</option>
+            <option value="unassigned">Unassigned</option>
+            {project.members?.map((m) => (
+              <option key={m.userId} value={m.userId}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="px-2 py-1 text-[11px] font-mono text-amber-500 hover:underline transition"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 

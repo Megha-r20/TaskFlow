@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { CheckSquare, Calendar, FolderKanban, Clock, ArrowRight, Plus } from 'lucide-react';
+import { CheckSquare, Calendar, FolderKanban, Clock, ArrowRight, Plus, Search, Filter } from 'lucide-react';
 import { useWorkspace, useRealtime } from '@/components/layout/AppShell';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
 
@@ -12,6 +12,11 @@ export default function MyTasksPage() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
 
   const fetchMyTasks = useCallback(async () => {
     if (!user?.id || !activeWorkspace?.id) return;
@@ -48,6 +53,21 @@ export default function MyTasksPage() {
     };
   }, [registerRealtimeHandler, fetchMyTasks]);
 
+  const hasActiveFilters = searchQuery || statusFilter || priorityFilter;
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('');
+    setPriorityFilter('');
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (statusFilter && task.status !== statusFilter) return false;
+    if (priorityFilter && task.priority !== priorityFilter) return false;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="space-y-4 max-w-5xl mx-auto animate-pulse">
@@ -70,7 +90,7 @@ export default function MyTasksPage() {
 
         <div className="flex items-center gap-3">
           <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold font-mono">
-            {tasks.length} Assigned
+            {filteredTasks.length} / {tasks.length} Assigned
           </span>
           <button
             onClick={() => openCreateTask()}
@@ -82,6 +102,55 @@ export default function MyTasksPage() {
         </div>
       </div>
 
+      {/* Task Filter Toolbar */}
+      <div className="p-3 rounded-xl bg-[var(--tf-card)] border border-[var(--tf-border)] shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1 sm:max-w-xs">
+          <Search className="w-3.5 h-3.5 text-[var(--tf-text-subtle)] absolute left-2.5 top-2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search my tasks..."
+            className="w-full pl-8 pr-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs font-mono text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 cursor-pointer"
+          >
+            <option value="">All Statuses</option>
+            <option value="TODO">Todo</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="REVIEW">Review</option>
+            <option value="DONE">Done</option>
+          </select>
+
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-2.5 py-1 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs font-mono text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 cursor-pointer"
+          >
+            <option value="">All Priorities</option>
+            <option value="LOW">Low</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HIGH">High</option>
+            <option value="URGENT">Urgent</option>
+          </select>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="px-2.5 py-1 text-[11px] font-mono text-amber-500 hover:underline transition"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Task Table Container */}
       <div className="bg-[var(--tf-card)] border border-[var(--tf-border)] rounded-xl overflow-hidden shadow-2xl divide-y divide-[var(--tf-border)] transition-colors duration-150">
         <div className="p-3 bg-[var(--tf-sidebar)] grid grid-cols-12 text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] border-b border-[var(--tf-border)]">
@@ -90,19 +159,30 @@ export default function MyTasksPage() {
           <div className="col-span-3 sm:col-span-2 text-right">Status</div>
         </div>
 
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="p-12 text-center text-xs text-[var(--tf-text-muted)] space-y-3">
-            <p className="italic">You currently have zero assigned pending tasks. You're all caught up! 🎉</p>
-            <button
-              onClick={() => openCreateTask()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs font-semibold transition cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Create your first task</span>
-            </button>
+            <p className="italic">
+              {hasActiveFilters ? 'No tasks match your current filter selection.' : "You currently have zero assigned pending tasks. You're all caught up! 🎉"}
+            </p>
+            {hasActiveFilters ? (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-xs text-[var(--tf-text-main)] font-semibold transition cursor-pointer"
+              >
+                Reset Filters
+              </button>
+            ) : (
+              <button
+                onClick={() => openCreateTask()}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs font-semibold transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Create your first task</span>
+              </button>
+            )}
           </div>
         ) : (
-          tasks.map((task) => (
+          filteredTasks.map((task) => (
             <div
               key={task.id}
               onClick={() => setSelectedTaskId(task.id)}
