@@ -22,7 +22,13 @@ export default function SettingsPage() {
   const { user, activeWorkspace, refreshSession } = useWorkspace();
 
   // Tab State
-  const [activeTab, setActiveTab] = useState('workspace'); // 'workspace' | 'personal' | 'permissions'
+  const [activeTab, setActiveTab] = useState('workspace'); // 'workspace' | 'personal' | 'permissions' | 'integrations'
+
+  // Webhooks State
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
+  const [discordWebhookUrl, setDiscordWebhookUrl] = useState('');
+  const [webhookMessage, setWebhookMessage] = useState('');
+  const [webhookLoading, setWebhookLoading] = useState(false);
 
   // Workspace Settings Form (Owner/Admin)
   const [wsName, setWsName] = useState('');
@@ -166,6 +172,18 @@ export default function SettingsPage() {
         >
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
           <span>Role Permissions Matrix</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('integrations')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer shrink-0 ${
+            activeTab === 'integrations'
+              ? 'bg-[var(--tf-card)] text-[var(--tf-text-main)] border border-[var(--tf-border)] font-bold shadow-xs'
+              : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]'
+          }`}
+        >
+          <Globe className="w-4 h-4 text-amber-500" />
+          <span>Slack & Discord Webhooks</span>
         </button>
       </div>
 
@@ -513,6 +531,84 @@ export default function SettingsPage() {
                   <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Comment & Mention Teammates
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Slack & Discord Webhook Integrations */}
+      {activeTab === 'integrations' && (
+        <div className="p-6 rounded-xl bg-[var(--tf-card)] border border-[var(--tf-border)] shadow-xl space-y-6">
+          <div>
+            <h3 className="text-base font-bold text-[var(--tf-text-main)] flex items-center gap-2">
+              <Globe className="w-4 h-4 text-amber-500" />
+              <span>Slack & Discord Incoming Webhooks</span>
+            </h3>
+            <p className="text-xs text-[var(--tf-text-muted)] mt-1">
+              Automatically broadcast new task creations, completed milestones, and live Huddle notifications directly into your team chat channels.
+            </p>
+          </div>
+
+          {webhookMessage && (
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs flex items-center gap-2 font-mono">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{webhookMessage}</span>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
+                Slack Incoming Webhook URL
+              </label>
+              <input
+                type="text"
+                value={slackWebhookUrl}
+                onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                placeholder="https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK_URL"
+                className="w-full px-3 py-2 text-xs rounded-md bg-[var(--tf-sidebar)] border border-[var(--tf-border)] text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
+                Discord Webhook URL
+              </label>
+              <input
+                type="text"
+                value={discordWebhookUrl}
+                onChange={(e) => setDiscordWebhookUrl(e.target.value)}
+                placeholder="https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz"
+                className="w-full px-3 py-2 text-xs rounded-md bg-[var(--tf-sidebar)] border border-[var(--tf-border)] text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 font-mono"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={async () => {
+                  setWebhookLoading(true);
+                  setWebhookMessage('');
+                  try {
+                    const res = await fetch('/api/integrations/webhooks', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ slackWebhookUrl, discordWebhookUrl, testNotification: true }),
+                    });
+                    if (res.ok) {
+                      setWebhookMessage('Test webhook dispatch sent successfully to configured channels!');
+                    }
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setWebhookLoading(false);
+                  }
+                }}
+                disabled={webhookLoading}
+                className="flex items-center gap-2 px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>{webhookLoading ? 'Sending Test...' : 'Save & Send Test Webhook'}</span>
+              </button>
             </div>
           </div>
         </div>

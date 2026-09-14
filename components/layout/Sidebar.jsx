@@ -20,6 +20,9 @@ import {
   Palette,
   BarChart3,
   Radio,
+  BookOpen,
+  Target,
+  Clock,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import CreateProjectModal from '../modals/CreateProjectModal';
@@ -53,6 +56,10 @@ export default function Sidebar({ isOpen, onClose }) {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Tasks', href: '/my-tasks', icon: CheckSquare },
     { name: 'Team Members', href: '/members', icon: Users },
+    { name: 'Analytics & Reports', href: '/analytics', icon: BarChart3 },
+    { name: 'Docs & Wiki', href: '/docs', icon: BookOpen },
+    { name: 'Time Tracker', href: '/timesheets', icon: Clock },
+    { name: 'OKRs & Goals', href: '/goals', icon: Target },
   ];
 
   return (
