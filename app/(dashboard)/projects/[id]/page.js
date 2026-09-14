@@ -11,10 +11,12 @@ import {
   FileSpreadsheet,
   FileCode,
   ChevronDown,
+  Calendar,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
 import KanbanBoard from '@/components/kanban/KanbanBoard';
+import GanttChart from '@/components/gantt/GanttChart';
 import TaskDetailModal from '@/components/modals/TaskDetailModal';
 import CreateTaskModal from '@/components/modals/CreateTaskModal';
 import { exportTasksToCSV, exportTasksToJSON } from '@/lib/exportTasks';
@@ -31,7 +33,7 @@ export default function ProjectDetailPage({ params }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // View state: 'kanban' | 'list'
+  // View state: 'kanban' | 'list' | 'gantt'
   const [viewMode, setViewMode] = useState('kanban');
 
   // Filters
@@ -317,6 +319,17 @@ export default function ProjectDetailPage({ params }) {
             <ListFilter className="w-3.5 h-3.5" />
             <span>Task List</span>
           </button>
+          <button
+            onClick={() => setViewMode('gantt')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition cursor-pointer ${
+              viewMode === 'gantt'
+                ? 'bg-amber-500 text-white font-semibold shadow-xs'
+                : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Gantt Timeline</span>
+          </button>
         </div>
 
         {/* Search + Filters */}
@@ -388,6 +401,11 @@ export default function ProjectDetailPage({ params }) {
           onTaskMove={handleTaskMove}
           onTaskClick={(taskId) => setSelectedTaskId(taskId)}
           onQuickAdd={handleOpenQuickAdd}
+        />
+      ) : viewMode === 'gantt' ? (
+        <GanttChart
+          tasks={filteredTasks}
+          onTaskClick={(t) => setSelectedTaskId(t.id)}
         />
       ) : (
         /* List View */

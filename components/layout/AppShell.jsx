@@ -10,6 +10,7 @@ import KeyboardShortcutsModal from '../modals/KeyboardShortcutsModal';
 import AiStandupModal from '../modals/AiStandupModal';
 import AutomationRulesModal from '../modals/AutomationRulesModal';
 import FocusModeModal from '../modals/FocusModeModal';
+import GanttTimelineModal from '../modals/GanttTimelineModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -31,6 +32,7 @@ export default function AppShell({ children }) {
   const [isAiStandupOpen, setIsAiStandupOpen] = useState(false);
   const [isAutomationsOpen, setIsAutomationsOpen] = useState(false);
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
+  const [isGanttOpen, setIsGanttOpen] = useState(false);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -157,6 +159,7 @@ export default function AppShell({ children }) {
           setFocusTask(task);
           setIsFocusModeOpen(true);
         },
+        openGanttTimeline: () => setIsGanttOpen(true),
       }}
     >
       <RealtimeContext.Provider
@@ -235,6 +238,14 @@ export default function AppShell({ children }) {
             isOpen={isFocusModeOpen}
             initialTask={focusTask}
             onClose={() => setIsFocusModeOpen(false)}
+          />
+        )}
+
+        {/* Gantt Schedule Timeline Modal */}
+        {isGanttOpen && (
+          <GanttTimelineModal
+            isOpen={isGanttOpen}
+            onClose={() => setIsGanttOpen(false)}
           />
         )}
       </RealtimeContext.Provider>
