@@ -12,6 +12,7 @@ import AutomationRulesModal from '../modals/AutomationRulesModal';
 import FocusModeModal from '../modals/FocusModeModal';
 import GanttTimelineModal from '../modals/GanttTimelineModal';
 import WhiteboardModal from '../modals/WhiteboardModal';
+import WorkloadModal from '../modals/WorkloadModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -35,6 +36,7 @@ export default function AppShell({ children }) {
   const [isFocusModeOpen, setIsFocusModeOpen] = useState(false);
   const [isGanttOpen, setIsGanttOpen] = useState(false);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
+  const [isWorkloadOpen, setIsWorkloadOpen] = useState(false);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -163,6 +165,7 @@ export default function AppShell({ children }) {
         },
         openGanttTimeline: () => setIsGanttOpen(true),
         openWhiteboard: () => setIsWhiteboardOpen(true),
+        openWorkloadPlanner: () => setIsWorkloadOpen(true),
       }}
     >
       <RealtimeContext.Provider
@@ -256,6 +259,14 @@ export default function AppShell({ children }) {
           <WhiteboardModal
             isOpen={isWhiteboardOpen}
             onClose={() => setIsWhiteboardOpen(false)}
+          />
+        )}
+
+        {/* Team Workload & Capacity Modal */}
+        {isWorkloadOpen && (
+          <WorkloadModal
+            isOpen={isWorkloadOpen}
+            onClose={() => setIsWorkloadOpen(false)}
           />
         )}
       </RealtimeContext.Provider>

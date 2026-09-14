@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, UserPlus, ShieldCheck, Check, X, Mail, Shield } from 'lucide-react';
+import { Users, UserPlus, ShieldCheck, Check, X, Mail, Shield, BarChart3 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
+import WorkloadPlanner from '@/components/workload/WorkloadPlanner';
 
 export default function MembersPage() {
   const { user, activeWorkspace } = useWorkspace();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('roster'); // 'roster' | 'workload'
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('MEMBER');
@@ -111,8 +113,38 @@ export default function MembersPage() {
         )}
       </div>
 
-      {/* Members Table */}
-      <div className="bg-[var(--tf-card)] border border-[var(--tf-border)] rounded-xl overflow-hidden shadow-2xl divide-y divide-[var(--tf-border)] transition-colors duration-150">
+      {/* Tab Switcher */}
+      <div className="flex items-center gap-1 bg-[var(--tf-card)] p-1 rounded-lg border border-[var(--tf-border)] w-fit shadow-xs">
+        <button
+          onClick={() => setActiveTab('roster')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer ${
+            activeTab === 'roster'
+              ? 'bg-amber-500 text-slate-900 shadow-xs'
+              : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Team Roster</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('workload')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition cursor-pointer ${
+            activeTab === 'workload'
+              ? 'bg-amber-500 text-slate-900 shadow-xs'
+              : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
+          }`}
+        >
+          <BarChart3 className="w-3.5 h-3.5" />
+          <span>Workload & Capacity</span>
+        </button>
+      </div>
+
+      {activeTab === 'workload' ? (
+        <WorkloadPlanner />
+      ) : (
+        /* Members Table */
+        <div className="bg-[var(--tf-card)] border border-[var(--tf-border)] rounded-xl overflow-hidden shadow-2xl divide-y divide-[var(--tf-border)] transition-colors duration-150">
         <div className="p-3.5 bg-[var(--tf-sidebar)] grid grid-cols-12 text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] border-b border-[var(--tf-border)]">
           <div className="col-span-5 sm:col-span-6">Member</div>
           <div className="col-span-4 sm:col-span-3">Role & Permissions</div>
@@ -171,6 +203,7 @@ export default function MembersPage() {
           </div>
         ))}
       </div>
+      )}
 
       {/* Invite Member Modal */}
       {isInviteOpen && (
