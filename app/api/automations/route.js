@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { requireWorkspaceMember } from '@/lib/permissions';
+import { requireWorkspaceMember, requireWorkspaceAdmin } from '@/lib/permissions';
 
 export async function GET(req) {
   try {
@@ -25,7 +25,9 @@ export async function GET(req) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ rules });
+    const isAdminOrOwner = member.role === 'ADMIN' || member.role === 'OWNER';
+
+    return NextResponse.json({ rules, userRole: member.role, canManage: isAdminOrOwner });
   } catch (error) {
     console.error('Fetch automations error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -43,9 +45,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing required rule parameters' }, { status: 400 });
     }
 
-    const member = await requireWorkspaceMember(workspaceId, user.id);
-    if (!member) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    // Require OWNER or ADMIN role to create automation rules
+    const adminMember = await requireWorkspaceAdmin(workspaceId, user.id);
+    if (!adminMember) {
+      return NextResponse.json({ error: 'Forbidden: Only Workspace Admins and Owners can create automation rules' }, { status: 403 });
     }
 
     const rule = await db.automationRule.create({

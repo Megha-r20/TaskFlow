@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { requireWorkspaceMember } from '@/lib/permissions';
+import { requireWorkspaceAdmin } from '@/lib/permissions';
 
 export async function PATCH(req, { params }) {
   try {
@@ -12,8 +12,10 @@ export async function PATCH(req, { params }) {
     const rule = await db.automationRule.findUnique({ where: { id } });
     if (!rule) return NextResponse.json({ error: 'Rule not found' }, { status: 404 });
 
-    const member = await requireWorkspaceMember(rule.workspaceId, user.id);
-    if (!member) return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    const adminMember = await requireWorkspaceAdmin(rule.workspaceId, user.id);
+    if (!adminMember) {
+      return NextResponse.json({ error: 'Forbidden: Only Workspace Admins and Owners can modify automation rules' }, { status: 403 });
+    }
 
     const body = await req.json();
     const updated = await db.automationRule.update({
@@ -40,8 +42,10 @@ export async function DELETE(req, { params }) {
     const rule = await db.automationRule.findUnique({ where: { id } });
     if (!rule) return NextResponse.json({ error: 'Rule not found' }, { status: 404 });
 
-    const member = await requireWorkspaceMember(rule.workspaceId, user.id);
-    if (!member) return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    const adminMember = await requireWorkspaceAdmin(rule.workspaceId, user.id);
+    if (!adminMember) {
+      return NextResponse.json({ error: 'Forbidden: Only Workspace Admins and Owners can delete automation rules' }, { status: 403 });
+    }
 
     await db.automationRule.delete({ where: { id } });
 

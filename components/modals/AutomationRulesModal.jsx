@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Zap, X, Plus, Trash2, CheckCircle, ArrowRight, UserCheck, Play, Power } from 'lucide-react';
+import { Zap, X, Plus, Trash2, CheckCircle, ArrowRight, UserCheck, Play, Power, ShieldAlert } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
 
 export default function AutomationRulesModal({ isOpen, onClose }) {
@@ -9,6 +9,8 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
   const [rules, setRules] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [canManage, setCanManage] = useState(false);
+  const [userRole, setUserRole] = useState('MEMBER');
 
   // New rule form state
   const [ruleName, setRuleName] = useState('');
@@ -34,6 +36,8 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
       if (rulesRes.ok) {
         const rulesData = await rulesRes.json();
         setRules(rulesData.rules || []);
+        setCanManage(rulesData.canManage || false);
+        setUserRole(rulesData.userRole || 'MEMBER');
       }
 
       if (memRes.ok) {
@@ -52,7 +56,7 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
 
   const handleCreateRule = async (e) => {
     e.preventDefault();
-    if (!actionValue) return;
+    if (!actionValue || !canManage) return;
 
     setSubmitting(true);
     const targetMember = members.find((m) => m.userId === actionValue);
@@ -86,6 +90,7 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
   };
 
   const toggleRuleEnabled = async (ruleId, currentStatus) => {
+    if (!canManage) return;
     try {
       const res = await fetch(`/api/automations/${ruleId}`, {
         method: 'PATCH',
@@ -103,6 +108,7 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
   };
 
   const deleteRule = async (ruleId) => {
+    if (!canManage) return;
     try {
       const res = await fetch(`/api/automations/${ruleId}`, {
         method: 'DELETE',
@@ -130,6 +136,13 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
             <div>
               <h3 className="text-sm font-bold text-[var(--tf-text-main)] flex items-center gap-2">
                 Workspace Automation Rules
+                <span className={`px-2 py-0.5 text-[9px] font-mono font-semibold uppercase rounded-full border ${
+                  userRole === 'OWNER' || userRole === 'ADMIN'
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                    : 'bg-stone-500/20 text-stone-400 border-stone-500/30'
+                }`}>
+                  {userRole === 'OWNER' ? '👑 Owner' : userRole === 'ADMIN' ? '🛡️ Admin' : '👤 Member (View Only)'}
+                </span>
               </h3>
               <p className="text-[11px] text-[var(--tf-text-muted)]">
                 Event-driven workflow triggers and automatic member re-assignments
@@ -146,22 +159,32 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
 
         {/* Content Body */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
+          {/* Role access notice if member */}
+          {!canManage && !loading && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex items-center gap-2 font-medium">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>Workspace members can view rules. Only Workspace Admins and Owners can create or modify automations.</span>
+            </div>
+          )}
+
           {/* Header Action / Add Rule Button */}
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)]">
               Active Rules ({rules.length})
             </span>
-            <button
-              onClick={() => setIsAdding((prev) => !prev)}
-              className="px-3 py-1.5 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>New Rule</span>
-            </button>
+            {canManage && (
+              <button
+                onClick={() => setIsAdding((prev) => !prev)}
+                className="px-3 py-1.5 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>New Rule</span>
+              </button>
+            )}
           </div>
 
           {/* Add Rule Drawer Form */}
-          {isAdding && (
+          {isAdding && canManage && (
             <form onSubmit={handleCreateRule} className="p-4 rounded-xl bg-[var(--tf-sidebar)] border border-amber-500/30 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-[var(--tf-border)] pb-2">
                 <span className="text-xs font-bold text-[var(--tf-text-main)] flex items-center gap-1.5">
@@ -241,7 +264,9 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
               <Zap className="w-8 h-8 text-[var(--tf-text-subtle)] mx-auto mb-2" />
               <p className="text-xs font-semibold text-[var(--tf-text-main)]">No automation rules configured</p>
               <p className="text-[11px] text-[var(--tf-text-muted)] mt-1">
-                Create your first rule above to automatically re-assign tasks when status changes.
+                {canManage
+                  ? 'Create your first rule above to automatically re-assign tasks when status changes.'
+                  : 'No active automation rules have been created by workspace admins yet.'}
               </p>
             </div>
           ) : (
@@ -258,15 +283,21 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
                     }`}
                   >
                     <div className="flex items-start gap-3 min-w-0">
-                      <button
-                        onClick={() => toggleRuleEnabled(rule.id, rule.enabled)}
-                        className={`mt-0.5 p-1 rounded transition cursor-pointer ${
-                          rule.enabled ? 'text-emerald-500 hover:bg-emerald-500/10' : 'text-[var(--tf-text-subtle)] hover:bg-[var(--tf-hover)]'
-                        }`}
-                        title={rule.enabled ? 'Disable rule' : 'Enable rule'}
-                      >
-                        <Power className="w-4 h-4" />
-                      </button>
+                      {canManage ? (
+                        <button
+                          onClick={() => toggleRuleEnabled(rule.id, rule.enabled)}
+                          className={`mt-0.5 p-1 rounded transition cursor-pointer ${
+                            rule.enabled ? 'text-emerald-500 hover:bg-emerald-500/10' : 'text-[var(--tf-text-subtle)] hover:bg-[var(--tf-hover)]'
+                          }`}
+                          title={rule.enabled ? 'Disable rule' : 'Enable rule'}
+                        >
+                          <Power className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className={`mt-0.5 p-1 rounded ${rule.enabled ? 'text-emerald-500' : 'text-[var(--tf-text-subtle)]'}`}>
+                          <Power className="w-4 h-4" />
+                        </div>
+                      )}
                       <div className="space-y-1 min-w-0">
                         <p className="text-xs font-bold text-[var(--tf-text-main)] truncate">{rule.name}</p>
                         <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono text-[var(--tf-text-muted)]">
@@ -281,15 +312,17 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => deleteRule(rule.id)}
-                        className="p-1.5 text-[var(--tf-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded transition cursor-pointer"
-                        title="Delete rule"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {canManage && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => deleteRule(rule.id)}
+                          className="p-1.5 text-[var(--tf-text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded transition cursor-pointer"
+                          title="Delete rule"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -300,7 +333,7 @@ export default function AutomationRulesModal({ isOpen, onClose }) {
         {/* Modal Footer */}
         <div className="p-3 bg-[var(--tf-sidebar)] border-t border-[var(--tf-border)] text-center">
           <p className="text-[10px] font-mono text-[var(--tf-text-subtle)]">
-            TaskFlow Automation Engine • Real-time event hooks
+            TaskFlow Automation Engine • Role-Based Access Control
           </p>
         </div>
       </div>
