@@ -14,13 +14,15 @@ import {
   Layers,
   X,
   Zap,
+  BrainCircuit,
+  Sparkles,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import CreateProjectModal from '../modals/CreateProjectModal';
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations } = useWorkspace();
+  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations, openFocusMode, openAiStandup } = useWorkspace();
   const [projects, setProjects] = useState([]);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -221,22 +223,54 @@ export default function Sidebar({ isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Workspace Settings */}
+          {/* Pro Tools & Features */}
           <div>
-            <span className="px-2 text-[10px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider block mb-1">
-              Configuration
+            <span className="px-2 text-[10px] font-mono font-semibold text-amber-500 uppercase tracking-wider block mb-1 flex items-center gap-1">
+              <span>⚡</span>
+              <span>Pro Tools</span>
             </span>
             <div className="space-y-0.5">
+              <button
+                onClick={() => {
+                  openFocusMode();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
+              >
+                <BrainCircuit className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-[var(--tf-text-main)]">Focus Mode</span>
+              </button>
+
               <button
                 onClick={() => {
                   openAutomations();
                   onClose();
                 }}
-                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
               >
-                <Zap className="w-4 h-4 text-amber-500" />
-                <span>Automation Rules</span>
+                <Zap className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-[var(--tf-text-main)]">Automations</span>
               </button>
+
+              <button
+                onClick={() => {
+                  openAiStandup();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left group"
+              >
+                <Sparkles className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-[var(--tf-text-main)]">AI Standup</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Configuration */}
+          <div>
+            <span className="px-2 text-[10px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider block mb-1">
+              Configuration
+            </span>
+            <div className="space-y-0.5">
               <Link
                 href="/settings"
                 onClick={onClose}
