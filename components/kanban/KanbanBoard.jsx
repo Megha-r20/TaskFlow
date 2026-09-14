@@ -51,25 +51,25 @@ export default function KanbanBoard({ tasks = [], onTaskMove, onTaskClick, onQui
             onDragOver={(e) => handleDragOver(e, col.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, col.id)}
-            className={`flex flex-col rounded-lg bg-[#202020] border transition-all duration-150 ${
+            className={`flex flex-col rounded-lg bg-[var(--notion-sidebar)] border transition-all duration-150 ${
               dragOverColumn === col.id
-                ? 'border-amber-500/50 bg-[#252525] ring-1 ring-amber-500/20'
-                : 'border-[#2d2d2d]'
+                ? 'border-amber-500/50 bg-[var(--notion-hover)] ring-1 ring-amber-500/20'
+                : 'border-[var(--notion-border)]'
             }`}
           >
             {/* Column Header - Notion Style */}
-            <div className="p-3 border-b border-[#2d2d2d] flex items-center justify-between bg-[#222222] rounded-t-lg">
+            <div className="p-3 border-b border-[var(--notion-border)] flex items-center justify-between bg-[var(--notion-card)] rounded-t-lg">
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium ${col.badgeClass}`}>
                   {col.title}
                 </span>
-                <span className="text-[11px] font-mono text-stone-500 font-medium">
+                <span className="text-[11px] font-mono text-[var(--notion-text-subtle)] font-medium">
                   {colTasks.length}
                 </span>
               </div>
               <button
                 onClick={() => onQuickAdd(col.id)}
-                className="p-1 rounded text-stone-400 hover:text-white hover:bg-[#2e2e2e] transition"
+                className="p-1 rounded text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)] transition"
                 title={`Add task to ${col.title}`}
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -79,9 +79,9 @@ export default function KanbanBoard({ tasks = [], onTaskMove, onTaskClick, onQui
             {/* Task List Container */}
             <div className="flex-1 p-2.5 space-y-2.5 min-h-[420px]">
               {colTasks.length === 0 ? (
-                <div className="h-32 border border-dashed border-[#333] rounded-md flex flex-col items-center justify-center text-xs text-stone-500 space-y-1">
+                <div className="h-32 border border-dashed border-[var(--notion-border)] rounded-md flex flex-col items-center justify-center text-xs text-[var(--notion-text-subtle)] space-y-1">
                   <span>No tasks</span>
-                  <span className="text-[10px] text-stone-600">Drag or create a task</span>
+                  <span className="text-[10px] opacity-75">Drag or create a task</span>
                 </div>
               ) : (
                 colTasks.map((task) => (

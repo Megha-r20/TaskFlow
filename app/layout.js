@@ -1,4 +1,5 @@
 import './globals.css';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export const metadata = {
   title: 'TaskFlow | Notion-Inspired Project Management Platform',
@@ -7,7 +8,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -15,10 +16,29 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('taskflow_theme');
+                  if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.classList.add('light');
+                  } else {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.classList.remove('light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
-      <body className="bg-[#191919] text-[#e3e3e3] antialiased min-h-screen selection:bg-[#2d3748] selection:text-white">
-        {children}
+      <body className="bg-[var(--notion-bg)] text-[var(--notion-text-main)] antialiased min-h-screen selection:bg-amber-500/20 selection:text-amber-500 transition-colors duration-150">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
 }
+

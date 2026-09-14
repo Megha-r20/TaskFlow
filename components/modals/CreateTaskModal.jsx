@@ -87,34 +87,34 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-xl bg-[#121826] border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-10">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-white font-bold text-base">
-            <CheckSquare className="w-5 h-5 text-indigo-400" />
+      <div className="relative w-full max-w-xl bg-[var(--notion-modal-bg)] border border-[var(--notion-border)] rounded-xl shadow-2xl overflow-hidden z-10">
+        <div className="p-4 border-b border-[var(--notion-border)] bg-[var(--notion-sidebar)] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[var(--notion-text-main)] font-bold text-base">
+            <CheckSquare className="w-5 h-5 text-amber-500" />
             <span>Create New Task</span>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)]">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
               Project
             </label>
             <select
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
             >
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -125,7 +125,7 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
               Task Title
             </label>
             <input
@@ -134,12 +134,12 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Implement OAuth2 Social Login endpoints"
-              className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] placeholder-[var(--notion-text-subtle)] focus:outline-none focus:border-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
               Description
             </label>
             <textarea
@@ -147,19 +147,19 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add technical specification, requirements, or links..."
-              className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="w-full px-3 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] placeholder-[var(--notion-text-subtle)] focus:outline-none focus:border-amber-500 resize-none"
             />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
                 Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-2.5 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-2.5 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
               >
                 <option value="TODO">Todo</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -169,13 +169,13 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
                 Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full px-2.5 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-2.5 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -185,13 +185,13 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
                 Assignee
               </label>
               <select
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full px-2.5 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-2.5 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
@@ -203,30 +203,30 @@ export default function CreateTaskModal({ isOpen, onClose, defaultProjectId, onS
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
                 Due Date
               </label>
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-2 py-1.5 bg-[#0b0f17] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-2 py-1.5 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
 
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+          <div className="pt-4 flex items-center justify-end gap-3 border-t border-[var(--notion-border)]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)] transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 transition disabled:opacity-50 shadow-xs cursor-pointer"
             >
               {loading ? 'Creating...' : 'Create Task'}
             </button>

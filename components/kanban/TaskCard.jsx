@@ -29,7 +29,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       draggable
       onDragStart={(e) => onDragStart(e, task.id)}
       onClick={onClick}
-      className="group p-3 rounded-md bg-[#252525] hover:bg-[#2a2a2a] border border-[#333] hover:border-[#444] cursor-grab active:cursor-grabbing space-y-2.5 transition relative overflow-hidden"
+      className="group p-3 rounded-md bg-[var(--notion-card)] hover:bg-[var(--notion-card-hover)] border border-[var(--notion-border)] cursor-grab active:cursor-grabbing space-y-2.5 transition relative overflow-hidden shadow-xs"
     >
       {/* Top project color indicator line */}
       <div
@@ -39,7 +39,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
 
       {/* Header: Project Key & Priority Badge */}
       <div className="flex items-center justify-between gap-2 pt-0.5">
-        <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-[#1c1c1c] text-stone-400 border border-stone-800">
+        <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-[var(--notion-sidebar)] text-[var(--notion-text-subtle)] border border-[var(--notion-border)]">
           {task.project?.key}-{task.id.slice(0, 4)}
         </span>
         <span className={`px-2 py-0.2 rounded text-[10px] font-mono font-medium ${prio.badgeClass}`}>
@@ -48,7 +48,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       </div>
 
       {/* Task Title */}
-      <h4 className="text-xs font-semibold text-[#e3e3e3] group-hover:text-amber-300 transition-colors leading-snug line-clamp-2">
+      <h4 className="text-xs font-semibold text-[var(--notion-text-main)] group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
         {task.title}
       </h4>
 
@@ -61,7 +61,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
               className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded border"
               style={{
                 backgroundColor: `${tl.label?.color || '#3b82f6'}20`,
-                color: tl.label?.color || '#93c5fd',
+                color: tl.label?.color || '#3b82f6',
                 borderColor: `${tl.label?.color || '#3b82f6'}40`,
               }}
             >
@@ -72,17 +72,17 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       )}
 
       {/* Card Footer: Due Date, Comments, Assignee */}
-      <div className="pt-2 border-t border-[#333] flex items-center justify-between text-[11px]">
+      <div className="pt-2 border-t border-[var(--notion-border)] flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-2.5">
           {task.dueDate && (
             <div
               className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded ${
                 isOverdue
                   ? 'notion-tag-red font-semibold'
-                  : 'text-stone-400 bg-[#1c1c1c]'
+                  : 'text-[var(--notion-text-subtle)] bg-[var(--notion-sidebar)]'
               }`}
             >
-              <Calendar className="w-3 h-3 text-stone-400" />
+              <Calendar className="w-3 h-3 text-[var(--notion-text-subtle)]" />
               <span>
                 {new Date(task.dueDate).toLocaleDateString(undefined, {
                   month: 'short',
@@ -93,8 +93,8 @@ export default function TaskCard({ task, onClick, onDragStart }) {
           )}
 
           {task._count?.comments > 0 && (
-            <div className="flex items-center gap-1 text-stone-400 font-mono text-[10px]">
-              <MessageSquare className="w-3 h-3 text-stone-500" />
+            <div className="flex items-center gap-1 text-[var(--notion-text-subtle)] font-mono text-[10px]">
+              <MessageSquare className="w-3 h-3 text-[var(--notion-text-subtle)]" />
               <span>{task._count.comments}</span>
             </div>
           )}
@@ -105,10 +105,10 @@ export default function TaskCard({ task, onClick, onDragStart }) {
             src={task.assignee.avatarUrl}
             alt={task.assignee.name}
             title={`Assigned to ${task.assignee.name}`}
-            className="w-5 h-5 rounded-full object-cover border border-[#444]"
+            className="w-5 h-5 rounded-full object-cover border border-[var(--notion-border)]"
           />
         ) : (
-          <div className="w-5 h-5 rounded-full border border-dashed border-stone-700 flex items-center justify-center text-[9px] text-stone-500 font-mono">
+          <div className="w-5 h-5 rounded-full border border-dashed border-[var(--notion-border)] flex items-center justify-center text-[9px] text-[var(--notion-text-subtle)] font-mono">
             ?
           </div>
         )}
