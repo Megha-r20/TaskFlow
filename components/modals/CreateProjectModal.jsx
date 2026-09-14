@@ -59,13 +59,13 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-[var(--notion-modal-bg)] border border-[var(--notion-border)] rounded-lg shadow-2xl overflow-hidden z-10">
-        <div className="p-3.5 border-b border-[var(--notion-border)] bg-[var(--notion-sidebar)] flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[var(--notion-text-main)] font-semibold text-sm">
+      <div className="relative w-full max-w-lg bg-[var(--tf-modal-bg)] border border-[var(--tf-border)] rounded-lg shadow-2xl overflow-hidden z-10">
+        <div className="p-3.5 border-b border-[var(--tf-border)] bg-[var(--tf-sidebar)] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[var(--tf-text-main)] font-semibold text-sm">
             <FolderPlus className="w-4 h-4 text-amber-500" />
             <span>Create New Project</span>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)]">
+          <button onClick={onClose} className="p-1 rounded text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -79,7 +79,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-[11px] font-mono font-medium text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-medium text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
                 Project Name
               </label>
               <input
@@ -88,12 +88,12 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                 value={name}
                 onChange={handleNameChange}
                 placeholder="Mobile App v2.0"
-                className="w-full px-3 py-1.5 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-md text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500"
+                className="w-full px-3 py-1.5 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono font-medium text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-medium text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
                 Key (Prefix)
               </label>
               <input
@@ -103,13 +103,13 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                 value={key}
                 onChange={(e) => setKey(e.target.value.toUpperCase())}
                 placeholder="MOB"
-                className="w-full px-3 py-1.5 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-md text-xs text-[var(--notion-text-main)] uppercase font-mono focus:outline-none focus:border-amber-500"
+                className="w-full px-3 py-1.5 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs text-[var(--tf-text-main)] uppercase font-mono focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono font-medium text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-mono font-medium text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1">
               Description (Optional)
             </label>
             <textarea
@@ -117,12 +117,12 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Outline project scope, objectives, and goals..."
-              className="w-full px-3 py-1.5 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-md text-xs text-[var(--notion-text-main)] focus:outline-none focus:border-amber-500 resize-none"
+              className="w-full px-3 py-1.5 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-md text-xs text-[var(--tf-text-main)] focus:outline-none focus:border-amber-500 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono font-medium text-[var(--notion-text-subtle)] uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-mono font-medium text-[var(--tf-text-subtle)] uppercase tracking-wider mb-1.5">
               Accent Color
             </label>
             <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                   type="button"
                   onClick={() => setColor(c)}
                   className={`w-5 h-5 rounded-full transition transform ${
-                    color === c ? 'scale-125 ring-2 ring-amber-500 ring-offset-2 ring-offset-[var(--notion-modal-bg)]' : 'opacity-70 hover:opacity-100'
+                    color === c ? 'scale-125 ring-2 ring-amber-500 ring-offset-2 ring-offset-[var(--tf-modal-bg)]' : 'opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -140,18 +140,18 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
             </div>
           </div>
 
-          <div className="pt-3 flex items-center justify-end gap-2 border-t border-[var(--notion-border)]">
+          <div className="pt-3 flex items-center justify-end gap-2 border-t border-[var(--tf-border)]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-md text-xs font-medium text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)] transition cursor-pointer"
+              className="px-3.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 border border-[var(--notion-border)] transition disabled:opacity-50 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 border border-[var(--tf-border)] transition disabled:opacity-50 shadow-xs cursor-pointer"
             >
               {loading ? 'Creating...' : 'Create Project'}
             </button>

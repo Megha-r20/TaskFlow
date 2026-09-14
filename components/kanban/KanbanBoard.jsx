@@ -5,10 +5,10 @@ import { Plus } from 'lucide-react';
 import TaskCard from './TaskCard';
 
 const COLUMNS = [
-  { id: 'TODO', title: 'Todo', badgeClass: 'notion-tag-gray' },
-  { id: 'IN_PROGRESS', title: 'In Progress', badgeClass: 'notion-tag-blue' },
-  { id: 'REVIEW', title: 'In Review', badgeClass: 'notion-tag-yellow' },
-  { id: 'DONE', title: 'Done', badgeClass: 'notion-tag-green' },
+  { id: 'TODO', title: 'Todo', badgeClass: 'tf-tag-gray' },
+  { id: 'IN_PROGRESS', title: 'In Progress', badgeClass: 'tf-tag-blue' },
+  { id: 'REVIEW', title: 'In Review', badgeClass: 'tf-tag-yellow' },
+  { id: 'DONE', title: 'Done', badgeClass: 'tf-tag-green' },
 ];
 
 export default function KanbanBoard({ tasks = [], onTaskMove, onTaskClick, onQuickAdd }) {
@@ -51,25 +51,25 @@ export default function KanbanBoard({ tasks = [], onTaskMove, onTaskClick, onQui
             onDragOver={(e) => handleDragOver(e, col.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, col.id)}
-            className={`flex flex-col rounded-lg bg-[var(--notion-sidebar)] border transition-all duration-150 ${
+            className={`flex flex-col rounded-lg bg-[var(--tf-sidebar)] border transition-all duration-150 ${
               dragOverColumn === col.id
-                ? 'border-amber-500/50 bg-[var(--notion-hover)] ring-1 ring-amber-500/20'
-                : 'border-[var(--notion-border)]'
+                ? 'border-amber-500/50 bg-[var(--tf-hover)] ring-1 ring-amber-500/20'
+                : 'border-[var(--tf-border)]'
             }`}
           >
-            {/* Column Header - Notion Style */}
-            <div className="p-3 border-b border-[var(--notion-border)] flex items-center justify-between bg-[var(--notion-card)] rounded-t-lg">
+            {/* Column Header - Clean Style */}
+            <div className="p-3 border-b border-[var(--tf-border)] flex items-center justify-between bg-[var(--tf-card)] rounded-t-lg">
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-medium ${col.badgeClass}`}>
                   {col.title}
                 </span>
-                <span className="text-[11px] font-mono text-[var(--notion-text-subtle)] font-medium">
+                <span className="text-[11px] font-mono text-[var(--tf-text-subtle)] font-medium">
                   {colTasks.length}
                 </span>
               </div>
               <button
                 onClick={() => onQuickAdd(col.id)}
-                className="p-1 rounded text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)] transition"
+                className="p-1 rounded text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition"
                 title={`Add task to ${col.title}`}
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -79,7 +79,7 @@ export default function KanbanBoard({ tasks = [], onTaskMove, onTaskClick, onQui
             {/* Task List Container */}
             <div className="flex-1 p-2.5 space-y-2.5 min-h-[420px]">
               {colTasks.length === 0 ? (
-                <div className="h-32 border border-dashed border-[var(--notion-border)] rounded-md flex flex-col items-center justify-center text-xs text-[var(--notion-text-subtle)] space-y-1">
+                <div className="h-32 border border-dashed border-[var(--tf-border)] rounded-md flex flex-col items-center justify-center text-xs text-[var(--tf-text-subtle)] space-y-1">
                   <span>No tasks</span>
                   <span className="text-[10px] opacity-75">Drag or create a task</span>
                 </div>

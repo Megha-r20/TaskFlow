@@ -92,10 +92,10 @@ export default function AppShell({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--notion-bg)] text-[var(--notion-text-main)] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--tf-bg)] text-[var(--tf-text-main)] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono text-[var(--notion-text-muted)]">Loading TaskFlow workspace...</span>
+          <span className="text-xs font-mono text-[var(--tf-text-muted)]">Loading TaskFlow workspace...</span>
         </div>
       </div>
     );
@@ -118,7 +118,7 @@ export default function AppShell({ children }) {
           registerRealtimeHandler,
         }}
       >
-        <div className="min-h-screen bg-[var(--notion-bg)] text-[var(--notion-text-main)] flex overflow-hidden">
+        <div className="min-h-screen bg-[var(--tf-bg)] text-[var(--tf-text-main)] flex overflow-hidden">
           {/* Sidebar */}
           <Sidebar
             isOpen={isMobileSidebarOpen}
@@ -128,7 +128,7 @@ export default function AppShell({ children }) {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             <Navbar onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)} />
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[var(--notion-bg)]">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[var(--tf-bg)]">
               {children}
             </main>
           </div>

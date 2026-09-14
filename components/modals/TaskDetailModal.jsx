@@ -169,24 +169,24 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end transition-opacity">
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-2xl bg-[var(--notion-modal-bg)] border-l border-[var(--notion-border)] h-full shadow-2xl overflow-y-auto flex flex-col z-10 transition-colors duration-150">
+      <div className="relative w-full max-w-2xl bg-[var(--tf-modal-bg)] border-l border-[var(--tf-border)] h-full shadow-2xl overflow-y-auto flex flex-col z-10 transition-colors duration-150">
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-[var(--notion-border)] flex items-center justify-between sticky top-0 bg-[var(--notion-modal-bg)] z-20">
+        <div className="p-4 sm:p-6 border-b border-[var(--tf-border)] flex items-center justify-between sticky top-0 bg-[var(--tf-modal-bg)] z-20">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[var(--notion-sidebar)] text-amber-500 border border-[var(--notion-border)]">
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[var(--tf-sidebar)] text-amber-500 border border-[var(--tf-border)]">
               {task?.project?.key}-{task?.id.slice(0, 4)}
             </span>
-            <span className="text-xs text-[var(--notion-text-muted)] font-medium">in {task?.project?.name}</span>
+            <span className="text-xs text-[var(--tf-text-muted)] font-medium">in {task?.project?.name}</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleDeleteTask}
-              className="p-2 rounded-lg text-[var(--notion-text-muted)] hover:text-red-500 hover:bg-red-500/10 transition"
+              className="p-2 rounded-lg text-[var(--tf-text-muted)] hover:text-red-500 hover:bg-red-500/10 transition"
               title="Delete task"
             >
               <Trash2 className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="p-2 rounded-lg text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)]">
+            <button onClick={onClose} className="p-2 rounded-lg text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -205,7 +205,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                 value={task?.title || ''}
                 onChange={(e) => setTask((prev) => ({ ...prev, title: e.target.value }))}
                 onBlur={(e) => updateTaskField({ title: e.target.value })}
-                className="w-full text-xl sm:text-2xl font-bold text-[var(--notion-text-main)] bg-transparent border-b border-transparent hover:border-[var(--notion-border)] focus:border-amber-500 focus:outline-none py-1 transition tracking-tight"
+                className="w-full text-xl sm:text-2xl font-bold text-[var(--tf-text-main)] bg-transparent border-b border-transparent hover:border-[var(--tf-border)] focus:border-amber-500 focus:outline-none py-1 transition tracking-tight"
               />
 
               <textarea
@@ -214,20 +214,20 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                 onChange={(e) => setTask((prev) => ({ ...prev, description: e.target.value }))}
                 onBlur={(e) => updateTaskField({ description: e.target.value })}
                 placeholder="Add a detailed technical specification or task description..."
-                className="w-full bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg p-3 text-xs text-[var(--notion-text-main)] placeholder-[var(--notion-text-subtle)] focus:outline-none focus:border-amber-500 resize-none leading-relaxed"
+                className="w-full bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg p-3 text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500 resize-none leading-relaxed"
               />
             </div>
 
             {/* Properties Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[var(--notion-sidebar)] border border-[var(--notion-border)]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[var(--tf-sidebar)] border border-[var(--tf-border)]">
               <div>
-                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-1">
                   Status
                 </label>
                 <select
                   value={task?.status || 'TODO'}
                   onChange={(e) => updateTaskField({ status: e.target.value })}
-                  className="w-full bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--notion-text-main)] font-semibold focus:outline-none"
+                  className="w-full bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--tf-text-main)] font-semibold focus:outline-none"
                 >
                   <option value="TODO">Todo</option>
                   <option value="IN_PROGRESS">In Progress</option>
@@ -237,13 +237,13 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-1">
                   Priority
                 </label>
                 <select
                   value={task?.priority || 'MEDIUM'}
                   onChange={(e) => updateTaskField({ priority: e.target.value })}
-                  className="w-full bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--notion-text-main)] font-semibold focus:outline-none"
+                  className="w-full bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--tf-text-main)] font-semibold focus:outline-none"
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -253,13 +253,13 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-1">
                   Assignee
                 </label>
                 <select
                   value={task?.assigneeId || ''}
                   onChange={(e) => updateTaskField({ assigneeId: e.target.value || null })}
-                  className="w-full bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--notion-text-main)] font-semibold focus:outline-none"
+                  className="w-full bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--tf-text-main)] font-semibold focus:outline-none"
                 >
                   <option value="">Unassigned</option>
                   {members.map((m) => (
@@ -271,27 +271,27 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-1">
                   Due Date
                 </label>
                 <input
                   type="date"
                   value={task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}
                   onChange={(e) => updateTaskField({ dueDate: e.target.value || null })}
-                  className="w-full bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg px-2 py-1.5 text-xs text-[var(--notion-text-main)] focus:outline-none"
+                  className="w-full bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg px-2 py-1.5 text-xs text-[var(--tf-text-main)] focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Tabs for Discussion & Activity */}
-            <div className="border-t border-[var(--notion-border)] pt-4">
-              <div className="flex items-center gap-6 border-b border-[var(--notion-border)] pb-2 mb-4">
+            <div className="border-t border-[var(--tf-border)] pt-4">
+              <div className="flex items-center gap-6 border-b border-[var(--tf-border)] pb-2 mb-4">
                 <button
                   onClick={() => setActiveTab('comments')}
                   className={`flex items-center gap-2 text-xs font-bold pb-1.5 transition ${
                     activeTab === 'comments'
                       ? 'text-amber-500 border-b-2 border-amber-500'
-                      : 'text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)]'
+                      : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
                   }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -302,7 +302,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                   className={`flex items-center gap-2 text-xs font-bold pb-1.5 transition ${
                     activeTab === 'activity'
                       ? 'text-amber-500 border-b-2 border-amber-500'
-                      : 'text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)]'
+                      : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
                   }`}
                 >
                   <History className="w-3.5 h-3.5" />
@@ -315,24 +315,24 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                 <div className="space-y-4">
                   <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                     {task?.comments?.length === 0 ? (
-                      <p className="text-xs text-[var(--notion-text-subtle)] italic py-3">No comments yet. Start the conversation!</p>
+                      <p className="text-xs text-[var(--tf-text-subtle)] italic py-3">No comments yet. Start the conversation!</p>
                     ) : (
                       task?.comments?.map((c) => (
-                        <div key={c.id} className="p-3 rounded-lg bg-[var(--notion-sidebar)] border border-[var(--notion-border)] space-y-1.5">
+                        <div key={c.id} className="p-3 rounded-lg bg-[var(--tf-sidebar)] border border-[var(--tf-border)] space-y-1.5">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <img
                                 src={c.user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.user?.name}`}
                                 alt={c.user?.name}
-                                className="w-5 h-5 rounded-full object-cover border border-[var(--notion-border)]"
+                                className="w-5 h-5 rounded-full object-cover border border-[var(--tf-border)]"
                               />
-                              <span className="text-xs font-semibold text-[var(--notion-text-main)]">{c.user?.name}</span>
+                              <span className="text-xs font-semibold text-[var(--tf-text-main)]">{c.user?.name}</span>
                             </div>
-                            <span className="text-[10px] text-[var(--notion-text-subtle)] font-mono">
+                            <span className="text-[10px] text-[var(--tf-text-subtle)] font-mono">
                               {new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="text-xs text-[var(--notion-text-muted)] whitespace-pre-wrap pl-7 leading-relaxed">{c.content}</p>
+                          <p className="text-xs text-[var(--tf-text-muted)] whitespace-pre-wrap pl-7 leading-relaxed">{c.content}</p>
                         </div>
                       ))
                     )}
@@ -342,8 +342,8 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                   {/* Comment Input */}
                   <form onSubmit={handlePostComment} className="relative pt-2">
                     {showMentionMenu && (
-                      <div className="absolute bottom-full mb-2 left-0 w-52 bg-[var(--notion-modal-bg)] border border-[var(--notion-border)] rounded-lg shadow-2xl z-30 max-h-40 overflow-y-auto">
-                        <div className="p-2 text-[10px] font-mono font-semibold text-[var(--notion-text-subtle)] uppercase">Mention Team Member</div>
+                      <div className="absolute bottom-full mb-2 left-0 w-52 bg-[var(--tf-modal-bg)] border border-[var(--tf-border)] rounded-lg shadow-2xl z-30 max-h-40 overflow-y-auto">
+                        <div className="p-2 text-[10px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase">Mention Team Member</div>
                         {members
                           .filter((m) => m.name.toLowerCase().includes(mentionFilter.toLowerCase()))
                           .map((m) => (
@@ -351,7 +351,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                               key={m.userId}
                               type="button"
                               onClick={() => insertMention(m.name)}
-                              className="w-full text-left px-3 py-1.5 text-xs text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)] transition"
+                              className="w-full text-left px-3 py-1.5 text-xs text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition"
                             >
                               @{m.name}
                             </button>
@@ -365,7 +365,7 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
                         value={commentInput}
                         onChange={handleCommentChange}
                         placeholder="Add a comment... (Type @ to mention team members)"
-                        className="flex-1 px-3 py-2 bg-[var(--notion-input-bg)] border border-[var(--notion-border)] rounded-lg text-xs text-[var(--notion-text-main)] placeholder-[var(--notion-text-subtle)] focus:outline-none focus:border-amber-500"
+                        className="flex-1 px-3 py-2 bg-[var(--tf-input-bg)] border border-[var(--tf-border)] rounded-lg text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none focus:border-amber-500"
                       />
                       <button
                         type="submit"
@@ -384,15 +384,15 @@ export default function TaskDetailModal({ taskId, isOpen, onClose, onUpdate, onD
               {activeTab === 'activity' && (
                 <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
                   {task?.activityLogs?.length === 0 ? (
-                    <p className="text-xs text-[var(--notion-text-subtle)] italic py-3">No activity logged yet.</p>
+                    <p className="text-xs text-[var(--tf-text-subtle)] italic py-3">No activity logged yet.</p>
                   ) : (
                     task?.activityLogs?.map((log) => (
-                      <div key={log.id} className="flex items-start gap-3 text-xs p-2.5 rounded-lg bg-[var(--notion-sidebar)] border border-[var(--notion-border)]">
+                      <div key={log.id} className="flex items-start gap-3 text-xs p-2.5 rounded-lg bg-[var(--tf-sidebar)] border border-[var(--tf-border)]">
                         <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
                         <div>
-                          <span className="font-semibold text-[var(--notion-text-main)]">{log.user?.name}</span>{' '}
-                          <span className="text-[var(--notion-text-muted)]">{log.details}</span>
-                          <span className="block text-[9px] text-[var(--notion-text-subtle)] font-mono mt-0.5">
+                          <span className="font-semibold text-[var(--tf-text-main)]">{log.user?.name}</span>{' '}
+                          <span className="text-[var(--tf-text-muted)]">{log.details}</span>
+                          <span className="block text-[9px] text-[var(--tf-text-subtle)] font-mono mt-0.5">
                             {new Date(log.createdAt).toLocaleString()}
                           </span>
                         </div>

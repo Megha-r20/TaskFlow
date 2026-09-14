@@ -6,14 +6,14 @@ export default function TaskCard({ task, onClick, onDragStart }) {
   const getPriorityBadge = (priority) => {
     switch (priority) {
       case 'URGENT':
-        return { badgeClass: 'notion-tag-red', label: 'Urgent' };
+        return { badgeClass: 'tf-tag-red', label: 'Urgent' };
       case 'HIGH':
-        return { badgeClass: 'notion-tag-orange', label: 'High' };
+        return { badgeClass: 'tf-tag-orange', label: 'High' };
       case 'MEDIUM':
-        return { badgeClass: 'notion-tag-blue', label: 'Medium' };
+        return { badgeClass: 'tf-tag-blue', label: 'Medium' };
       case 'LOW':
       default:
-        return { badgeClass: 'notion-tag-gray', label: 'Low' };
+        return { badgeClass: 'tf-tag-gray', label: 'Low' };
     }
   };
 
@@ -29,7 +29,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       draggable
       onDragStart={(e) => onDragStart(e, task.id)}
       onClick={onClick}
-      className="group p-3 rounded-md bg-[var(--notion-card)] hover:bg-[var(--notion-card-hover)] border border-[var(--notion-border)] cursor-grab active:cursor-grabbing space-y-2.5 transition relative overflow-hidden shadow-xs"
+      className="group p-3 rounded-md bg-[var(--tf-card)] hover:bg-[var(--tf-card-hover)] border border-[var(--tf-border)] cursor-grab active:cursor-grabbing space-y-2.5 transition relative overflow-hidden shadow-xs"
     >
       {/* Top project color indicator line */}
       <div
@@ -39,7 +39,7 @@ export default function TaskCard({ task, onClick, onDragStart }) {
 
       {/* Header: Project Key & Priority Badge */}
       <div className="flex items-center justify-between gap-2 pt-0.5">
-        <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-[var(--notion-sidebar)] text-[var(--notion-text-subtle)] border border-[var(--notion-border)]">
+        <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-[var(--tf-sidebar)] text-[var(--tf-text-subtle)] border border-[var(--tf-border)]">
           {task.project?.key}-{task.id.slice(0, 4)}
         </span>
         <span className={`px-2 py-0.2 rounded text-[10px] font-mono font-medium ${prio.badgeClass}`}>
@@ -48,11 +48,11 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       </div>
 
       {/* Task Title */}
-      <h4 className="text-xs font-semibold text-[var(--notion-text-main)] group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
+      <h4 className="text-xs font-semibold text-[var(--tf-text-main)] group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
         {task.title}
       </h4>
 
-      {/* Labels - Notion Style Tags */}
+      {/* Labels - Clean Style Tags */}
       {task.labels && task.labels.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {task.labels.map((tl) => (
@@ -72,17 +72,17 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       )}
 
       {/* Card Footer: Due Date, Comments, Assignee */}
-      <div className="pt-2 border-t border-[var(--notion-border)] flex items-center justify-between text-[11px]">
+      <div className="pt-2 border-t border-[var(--tf-border)] flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-2.5">
           {task.dueDate && (
             <div
               className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded ${
                 isOverdue
-                  ? 'notion-tag-red font-semibold'
-                  : 'text-[var(--notion-text-subtle)] bg-[var(--notion-sidebar)]'
+                  ? 'tf-tag-red font-semibold'
+                  : 'text-[var(--tf-text-subtle)] bg-[var(--tf-sidebar)]'
               }`}
             >
-              <Calendar className="w-3 h-3 text-[var(--notion-text-subtle)]" />
+              <Calendar className="w-3 h-3 text-[var(--tf-text-subtle)]" />
               <span>
                 {new Date(task.dueDate).toLocaleDateString(undefined, {
                   month: 'short',
@@ -93,8 +93,8 @@ export default function TaskCard({ task, onClick, onDragStart }) {
           )}
 
           {task._count?.comments > 0 && (
-            <div className="flex items-center gap-1 text-[var(--notion-text-subtle)] font-mono text-[10px]">
-              <MessageSquare className="w-3 h-3 text-[var(--notion-text-subtle)]" />
+            <div className="flex items-center gap-1 text-[var(--tf-text-subtle)] font-mono text-[10px]">
+              <MessageSquare className="w-3 h-3 text-[var(--tf-text-subtle)]" />
               <span>{task._count.comments}</span>
             </div>
           )}
@@ -105,10 +105,10 @@ export default function TaskCard({ task, onClick, onDragStart }) {
             src={task.assignee.avatarUrl}
             alt={task.assignee.name}
             title={`Assigned to ${task.assignee.name}`}
-            className="w-5 h-5 rounded-full object-cover border border-[var(--notion-border)]"
+            className="w-5 h-5 rounded-full object-cover border border-[var(--tf-border)]"
           />
         ) : (
-          <div className="w-5 h-5 rounded-full border border-dashed border-[var(--notion-border)] flex items-center justify-center text-[9px] text-[var(--notion-text-subtle)] font-mono">
+          <div className="w-5 h-5 rounded-full border border-dashed border-[var(--tf-border)] flex items-center justify-center text-[9px] text-[var(--tf-text-subtle)] font-mono">
             ?
           </div>
         )}

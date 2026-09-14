@@ -160,7 +160,7 @@ export default function ProjectDetailPage({ params }) {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Project Header Banner - Notion Style */}
+      {/* Project Header Banner - Clean Style */}
       <div className="p-5 sm:p-6 rounded-lg bg-[#202020] border border-[#333] space-y-4 relative overflow-hidden">
         {/* Live update pulse */}
         {recentlyUpdated && (
@@ -181,7 +181,7 @@ export default function ProjectDetailPage({ params }) {
             <div>
               <div className="flex items-center gap-2.5">
                 <h2 className="text-xl font-bold text-[#e3e3e3] tracking-tight">{project.name}</h2>
-                <span className="px-2 py-0.2 text-[10px] font-mono uppercase rounded notion-tag-blue">
+                <span className="px-2 py-0.2 text-[10px] font-mono uppercase rounded tf-tag-blue">
                   {project.status}
                 </span>
               </div>
@@ -384,11 +384,11 @@ export default function ProjectDetailPage({ params }) {
 
 function StatusBadge({ status }) {
   const config = {
-    TODO: 'notion-tag-gray',
-    IN_PROGRESS: 'notion-tag-blue',
-    REVIEW: 'notion-tag-yellow',
-    DONE: 'notion-tag-green',
-    CANCELLED: 'notion-tag-red',
+    TODO: 'tf-tag-gray',
+    IN_PROGRESS: 'tf-tag-blue',
+    REVIEW: 'tf-tag-yellow',
+    DONE: 'tf-tag-green',
+    CANCELLED: 'tf-tag-red',
   };
   return (
     <span className={`text-[10px] font-mono uppercase px-2 py-0.2 rounded ${config[status] || config.TODO}`}>
@@ -399,10 +399,10 @@ function StatusBadge({ status }) {
 
 function PriorityBadge({ priority }) {
   const config = {
-    LOW: 'notion-tag-gray',
-    MEDIUM: 'notion-tag-blue',
-    HIGH: 'notion-tag-orange',
-    URGENT: 'notion-tag-red font-semibold',
+    LOW: 'tf-tag-gray',
+    MEDIUM: 'tf-tag-blue',
+    HIGH: 'tf-tag-orange',
+    URGENT: 'tf-tag-red font-semibold',
   };
   return (
     <span className={`text-[10px] font-mono uppercase px-2 py-0.2 rounded ${config[priority] || config.LOW}`}>

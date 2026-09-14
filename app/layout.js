@@ -2,8 +2,8 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 export const metadata = {
-  title: 'TaskFlow | Notion-Inspired Project Management Platform',
-  description: 'Streamlined workspace, project planning, Notion-style Kanban board, and real-time team collaboration.',
+  title: 'TaskFlow | Project Management Platform',
+  description: 'Streamlined workspace, project planning, interactive Kanban board, and real-time team collaboration.',
 };
 
 export default function RootLayout({ children }) {
@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className="bg-[var(--notion-bg)] text-[var(--notion-text-main)] antialiased min-h-screen selection:bg-amber-500/20 selection:text-amber-500 transition-colors duration-150">
+      <body className="bg-[var(--tf-bg)] text-[var(--tf-text-main)] antialiased min-h-screen selection:bg-amber-500/20 selection:text-amber-500 transition-colors duration-150">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

@@ -46,21 +46,21 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
         className="fixed inset-0"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-2xl bg-[var(--notion-modal-bg)] border border-[var(--notion-border)] rounded-lg shadow-2xl overflow-hidden z-10">
-        {/* Search Input Bar - Notion style */}
-        <div className="p-3.5 border-b border-[var(--notion-border)] bg-[var(--notion-sidebar)] flex items-center gap-3">
-          <Search className="w-4 h-4 text-[var(--notion-text-muted)] shrink-0" />
+      <div className="relative w-full max-w-2xl bg-[var(--tf-modal-bg)] border border-[var(--tf-border)] rounded-lg shadow-2xl overflow-hidden z-10">
+        {/* Search Input Bar - Pro style */}
+        <div className="p-3.5 border-b border-[var(--tf-border)] bg-[var(--tf-sidebar)] flex items-center gap-3">
+          <Search className="w-4 h-4 text-[var(--tf-text-muted)] shrink-0" />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search projects, tasks, or members..."
-            className="w-full bg-transparent text-xs text-[var(--notion-text-main)] placeholder-[var(--notion-text-subtle)] focus:outline-none"
+            className="w-full bg-transparent text-xs text-[var(--tf-text-main)] placeholder-[var(--tf-text-subtle)] focus:outline-none"
           />
           <button
             onClick={onClose}
-            className="p-1 rounded text-[var(--notion-text-muted)] hover:text-[var(--notion-text-main)] hover:bg-[var(--notion-hover)]"
+            className="p-1 rounded text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]"
           >
             <X className="w-4 h-4" />
           </button>
@@ -69,11 +69,11 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
         {/* Results List */}
         <div className="max-h-96 overflow-y-auto p-4 space-y-4">
           {loading && (
-            <div className="py-6 text-center text-xs font-mono text-[var(--notion-text-muted)]">Searching...</div>
+            <div className="py-6 text-center text-xs font-mono text-[var(--tf-text-muted)]">Searching...</div>
           )}
 
           {!loading && !query.trim() && (
-            <div className="py-6 text-center text-xs text-[var(--notion-text-subtle)] font-mono">
+            <div className="py-6 text-center text-xs text-[var(--tf-text-subtle)] font-mono">
               Type anything to search across {activeWorkspace?.name}
             </div>
           )}
@@ -83,7 +83,7 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
             results.projects.length === 0 &&
             results.tasks.length === 0 &&
             results.members.length === 0 && (
-              <div className="py-6 text-center text-xs text-[var(--notion-text-subtle)] font-mono">
+              <div className="py-6 text-center text-xs text-[var(--tf-text-subtle)] font-mono">
                 No matching results found for "{query}"
               </div>
             )}
@@ -91,8 +91,8 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
           {/* Projects section */}
           {results.projects.length > 0 && (
             <div>
-              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-2 flex items-center gap-1.5">
-                <FolderKanban className="w-3.5 h-3.5 text-[var(--notion-text-subtle)]" />
+              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-2 flex items-center gap-1.5">
+                <FolderKanban className="w-3.5 h-3.5 text-[var(--tf-text-subtle)]" />
                 <span>Projects ({results.projects.length})</span>
               </div>
               <div className="space-y-1">
@@ -103,7 +103,7 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
                       router.push(`/projects/${proj.id}`);
                       onClose();
                     }}
-                    className="w-full flex items-center justify-between p-2.5 rounded bg-[var(--notion-sidebar)] hover:bg-[var(--notion-hover)] border border-[var(--notion-border)] text-left transition group"
+                    className="w-full flex items-center justify-between p-2.5 rounded bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-left transition group"
                   >
                     <div className="flex items-center gap-2.5">
                       <span
@@ -111,11 +111,11 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
                         style={{ backgroundColor: proj.color || '#3b82f6' }}
                       />
                       <div>
-                        <span className="text-xs font-medium text-[var(--notion-text-main)]">{proj.name}</span>
-                        <span className="text-[10px] text-[var(--notion-text-subtle)] ml-2 font-mono">{proj.key}</span>
+                        <span className="text-xs font-medium text-[var(--tf-text-main)]">{proj.name}</span>
+                        <span className="text-[10px] text-[var(--tf-text-subtle)] ml-2 font-mono">{proj.key}</span>
                       </div>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-[var(--notion-text-subtle)] group-hover:text-amber-500 transition" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[var(--tf-text-subtle)] group-hover:text-amber-500 transition" />
                   </button>
                 ))}
               </div>
@@ -125,8 +125,8 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
           {/* Tasks section */}
           {results.tasks.length > 0 && (
             <div>
-              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-2 flex items-center gap-1.5">
-                <CheckSquare className="w-3.5 h-3.5 text-[var(--notion-text-subtle)]" />
+              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-2 flex items-center gap-1.5">
+                <CheckSquare className="w-3.5 h-3.5 text-[var(--tf-text-subtle)]" />
                 <span>Tasks ({results.tasks.length})</span>
               </div>
               <div className="space-y-1">
@@ -137,20 +137,20 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
                       router.push(`/projects/${task.projectId}?task=${task.id}`);
                       onClose();
                     }}
-                    className="w-full flex items-center justify-between p-2.5 rounded bg-[var(--notion-sidebar)] hover:bg-[var(--notion-hover)] border border-[var(--notion-border)] text-left transition group"
+                    className="w-full flex items-center justify-between p-2.5 rounded bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-left transition group"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--notion-card)] text-[var(--notion-text-subtle)] border border-[var(--notion-border)]">
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--tf-card)] text-[var(--tf-text-subtle)] border border-[var(--tf-border)]">
                           {task.project?.key}-{task.id.slice(0, 4)}
                         </span>
-                        <span className="text-xs font-medium text-[var(--notion-text-main)]">{task.title}</span>
+                        <span className="text-xs font-medium text-[var(--tf-text-main)]">{task.title}</span>
                       </div>
-                      <span className="text-[10px] font-mono text-[var(--notion-text-subtle)] mt-1 block">
+                      <span className="text-[10px] font-mono text-[var(--tf-text-subtle)] mt-1 block">
                         Project: {task.project?.name} • Status: {task.status}
                       </span>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-[var(--notion-text-subtle)] group-hover:text-amber-500 transition" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[var(--tf-text-subtle)] group-hover:text-amber-500 transition" />
                   </button>
                 ))}
               </div>
@@ -160,28 +160,28 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
           {/* Team Members section */}
           {results.members.length > 0 && (
             <div>
-              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--notion-text-subtle)] mb-2 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-[var(--notion-text-subtle)]" />
+              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[var(--tf-text-subtle)] mb-2 flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-[var(--tf-text-subtle)]" />
                 <span>Team Members ({results.members.length})</span>
               </div>
               <div className="space-y-1">
                 {results.members.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-2.5 rounded bg-[var(--notion-sidebar)] border border-[var(--notion-border)]"
+                    className="flex items-center justify-between p-2.5 rounded bg-[var(--tf-sidebar)] border border-[var(--tf-border)]"
                   >
                     <div className="flex items-center gap-2.5">
                       <img
                         src={member.avatarUrl}
                         alt={member.name}
-                        className="w-6 h-6 rounded-full object-cover border border-[var(--notion-border)]"
+                        className="w-6 h-6 rounded-full object-cover border border-[var(--tf-border)]"
                       />
                       <div>
-                        <span className="text-xs font-medium text-[var(--notion-text-main)]">{member.name}</span>
-                        <span className="text-[10px] font-mono text-[var(--notion-text-subtle)] ml-2">{member.email}</span>
+                        <span className="text-xs font-medium text-[var(--tf-text-main)]">{member.name}</span>
+                        <span className="text-[10px] font-mono text-[var(--tf-text-subtle)] ml-2">{member.email}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-[var(--notion-card)] text-[var(--notion-text-subtle)] border border-[var(--notion-border)]">
+                    <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded bg-[var(--tf-card)] text-[var(--tf-text-subtle)] border border-[var(--tf-border)]">
                       {member.role}
                     </span>
                   </div>
