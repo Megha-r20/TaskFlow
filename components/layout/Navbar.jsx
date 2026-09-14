@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   Plus,
+  Keyboard,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import { useRealtime } from './AppShell';
@@ -22,7 +23,7 @@ import { useTheme } from '../theme/ThemeProvider';
 export default function Navbar({ onOpenMobileSidebar }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, openSearch, openCreateTask } = useWorkspace();
+  const { user, openSearch, openCreateTask, openShortcuts } = useWorkspace();
   const { connectionStatus, registerRealtimeHandler } = useRealtime() || {};
   const { theme, toggleTheme } = useTheme();
 
@@ -195,10 +196,20 @@ export default function Navbar({ onOpenMobileSidebar }) {
           <Search className="w-4 h-4" />
         </button>
 
+        {/* Keyboard Shortcuts Trigger Button */}
+        <button
+          onClick={openShortcuts}
+          className="p-1.5 rounded-md text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-1 cursor-pointer"
+          title="Keyboard Shortcuts (?)"
+          aria-label="Keyboard Shortcuts"
+        >
+          <Keyboard className="w-4 h-4 text-amber-500" />
+        </button>
+
         {/* Theme Toggle Button (Light vs Dark) */}
         <button
           onClick={toggleTheme}
-          className="p-1.5 rounded-md text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-1.5"
+          className="p-1.5 rounded-md text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)] transition flex items-center gap-1.5 cursor-pointer"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} theme`}
           aria-label="Toggle theme"
         >

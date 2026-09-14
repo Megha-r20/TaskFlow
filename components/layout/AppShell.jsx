@@ -6,6 +6,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import GlobalSearchModal from '../modals/GlobalSearchModal';
 import CreateTaskModal from '../modals/CreateTaskModal';
+import KeyboardShortcutsModal from '../modals/KeyboardShortcutsModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -23,6 +24,7 @@ export default function AppShell({ children }) {
   const [loading, setLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -72,12 +74,34 @@ export default function AppShell({ children }) {
     setIsCreateTaskOpen(true);
   }, []);
 
-  // Keyboard shortcut Cmd+K / Ctrl+K for Global Search
+  const openShortcuts = useCallback(() => {
+    setIsShortcutsOpen(true);
+  }, []);
+
+  // Global Keyboard shortcuts: Cmd+K / Ctrl+K for Search, ? or Ctrl+/ for Shortcuts Cheat-Sheet
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Ignore shortcut if typing inside an input, textarea, or contenteditable
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
+
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsSearchOpen((prev) => !prev);
+        return;
+      }
+
+      if (!isInput) {
+        if (e.key === '?' || (e.shiftKey && e.key === '/') || ((e.ctrlKey || e.metaKey) && e.key === '/')) {
+          e.preventDefault();
+          setIsShortcutsOpen((prev) => !prev);
+          return;
+        }
+
+        if (e.key === 'Escape') {
+          setIsSearchOpen(false);
+          setIsCreateTaskOpen(false);
+          setIsShortcutsOpen(false);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -119,6 +143,7 @@ export default function AppShell({ children }) {
         refreshSession: fetchSession,
         openSearch: () => setIsSearchOpen(true),
         openCreateTask,
+        openShortcuts,
       }}
     >
       <RealtimeContext.Provider
@@ -164,6 +189,14 @@ export default function AppShell({ children }) {
               }
               router.refresh();
             }}
+          />
+        )}
+
+        {/* Keyboard Shortcuts Cheat-Sheet Modal */}
+        {isShortcutsOpen && (
+          <KeyboardShortcutsModal
+            isOpen={isShortcutsOpen}
+            onClose={() => setIsShortcutsOpen(false)}
           />
         )}
       </RealtimeContext.Provider>
