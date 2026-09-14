@@ -29,6 +29,8 @@ import {
   Star,
   Check,
   Flame,
+  Shield,
+  Key,
 } from 'lucide-react';
 import { useTheme } from '@/components/theme/ThemeProvider';
 
@@ -92,7 +94,7 @@ export default function LandingPage() {
     {
       icon: BookOpen,
       title: 'Workspace Docs & Notion Wiki',
-      description: 'Centralized document repository with rich Markdown editor, category tags, `@task` references, and real-time state save.',
+      description: 'Centralized document repository with rich Markdown editor, category tags, `@task` references, and real-time database save.',
       color: 'text-blue-500',
       bg: 'bg-blue-500/10',
     },
@@ -105,8 +107,8 @@ export default function LandingPage() {
     },
     {
       icon: Globe,
-      title: 'Slack & Discord Webhooks',
-      description: 'Automated incoming webhook dispatcher pushing task updates, milestones, and live huddle alerts to Slack & Discord channels.',
+      title: 'SSRF-Safe Slack & Discord Webhooks',
+      description: 'Automated incoming webhook dispatcher pushing task updates, milestones, and live huddle alerts with strict HTTPS URL validation.',
       color: 'text-purple-500',
       bg: 'bg-purple-500/10',
     },
@@ -119,17 +121,17 @@ export default function LandingPage() {
     },
     {
       icon: Link2,
-      title: 'Client Share Links',
-      description: 'Generate secure, read-only guest links (`/share/[token]`) for external clients to track project progress without account login.',
+      title: 'Secure Client Share Links',
+      description: 'Generate cryptographically hashed read-only guest links (`/share/[token]`) for external clients with expiration and revocation.',
       color: 'text-emerald-400',
       bg: 'bg-emerald-400/10',
     },
     {
-      icon: Database,
-      title: 'Data Import/Export & Backup',
-      description: 'Bulk import tasks from JSON or CSV files and export complete 1-click workspace JSON backups.',
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10',
+      icon: ShieldCheck,
+      title: 'Enterprise Multi-Tenant Security',
+      description: 'Full database persistence, Zod request validation, rate limiting, hashed password resets, and complete tenant data isolation.',
+      color: 'text-indigo-400',
+      bg: 'bg-indigo-500/10',
     },
   ];
 
@@ -148,6 +150,9 @@ export default function LandingPage() {
             <div className="flex flex-col">
               <span className="text-base font-bold text-[var(--tf-text-main)] tracking-tight flex items-center gap-1.5">
                 TaskFlow
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  PRO
+                </span>
               </span>
             </div>
           </Link>
@@ -162,6 +167,9 @@ export default function LandingPage() {
             </a>
             <a href="#pro-suite" className="hover:text-[var(--tf-text-main)] transition">
               Enterprise Suite
+            </a>
+            <a href="#security" className="hover:text-[var(--tf-text-main)] transition">
+              Security
             </a>
             <a href="#demo" className="hover:text-[var(--tf-text-main)] transition">
               1-Click Demo
@@ -216,14 +224,14 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
-          {/* Subtle Background Glow */}
+          {/* Background Glow */}
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-amber-500/10 blur-[140px] rounded-full pointer-events-none -z-10" />
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-6">
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-mono font-bold shadow-xs">
-              <Sparkles className="w-4 h-4 animate-pulse" />
-              <span>Next-Gen Enterprise Project Platform</span>
+              <ShieldCheck className="w-4 h-4 animate-pulse text-amber-400" />
+              <span>Production-Grade SaaS Platform • Secure & Multi-Tenant</span>
             </div>
 
             {/* Headline */}
@@ -236,7 +244,7 @@ export default function LandingPage() {
 
             {/* Subheadline */}
             <p className="text-base sm:text-xl text-[var(--tf-text-muted)] max-w-3xl mx-auto leading-relaxed font-normal">
-              TaskFlow merges real-time WebRTC audio/video huddles, drag-and-drop Kanban boards, Notion-style workspace wiki docs, time tracking, and automated OKRs into one seamless team hub.
+              TaskFlow merges real-time WebRTC audio/video huddles, drag-and-drop Kanban boards, Notion-style workspace wiki docs, time tracking, automated OKRs, and encrypted client links into one high-velocity team platform.
             </p>
 
             {/* Hero CTAs */}
@@ -263,13 +271,13 @@ export default function LandingPage() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" /> WebRTC Video Huddles
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Real-time SSE Sync
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Database-Backed Realtime
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Sprint Burndown Analytics
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Sprint Burndown Telemetry
               </span>
               <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Slack & Discord Webhooks
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> SSRF-Safe Webhooks
               </span>
             </div>
           </div>
@@ -283,7 +291,7 @@ export default function LandingPage() {
                 Experience TaskFlow Pro in Action
               </h2>
               <p className="text-xs text-[var(--tf-text-muted)] max-w-xl mx-auto">
-                Explore the built-in modules designed for high-velocity engineering and design teams.
+                Explore built-in modules engineered for high-velocity software and design teams.
               </p>
             </div>
 
@@ -333,6 +341,17 @@ export default function LandingPage() {
                 <BookOpen className="w-4 h-4" />
                 <span>Notion Wiki</span>
               </button>
+              <button
+                onClick={() => setActiveTab('security')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  activeTab === 'security'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                    : 'text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)]'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Security Engine</span>
+              </button>
             </div>
 
             {/* Preview Box */}
@@ -353,6 +372,7 @@ export default function LandingPage() {
                       <img
                         src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host"
                         className="w-16 h-16 rounded-full border-2 border-amber-500"
+                        alt="Sarah Chen Avatar"
                       />
                       <span className="text-xs font-bold text-slate-200">Sarah Chen (Host)</span>
                       <span className="text-[10px] font-mono text-emerald-400">Microphone OFF • Camera OFF</span>
@@ -414,13 +434,38 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-[var(--tf-border)] pb-3">
                     <span className="text-xs font-bold text-blue-500">Workspace Specs & Notion Wiki</span>
-                    <span className="text-xs font-mono text-[var(--tf-text-muted)]">Markdown Editor</span>
+                    <span className="text-xs font-mono text-[var(--tf-text-muted)]">Database-Backed Docs</span>
                   </div>
                   <div className="p-4 rounded-xl bg-[var(--tf-sidebar)] border border-[var(--tf-border)] text-xs font-mono space-y-2">
                     <p className="font-bold text-amber-500"># TaskFlow Product Architecture</p>
                     <p className="text-[var(--tf-text-muted)]">
-                      Built on Next.js 15 App Router, SQLite, and WebRTC streaming for team collaboration.
+                      Built on Next.js 15 App Router, Prisma ORM, and WebRTC streaming for enterprise team collaboration.
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'security' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-[var(--tf-border)] pb-3">
+                    <span className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4" /> Enterprise Security Engine
+                    </span>
+                    <span className="text-xs font-mono text-emerald-400">SOC-2 Architecture Verified</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                    <div className="p-3 rounded-lg bg-[var(--tf-sidebar)] border border-[var(--tf-border)] space-y-1">
+                      <span className="font-bold text-amber-400">Crypto Hashing</span>
+                      <p className="text-[var(--tf-text-muted)]">SHA-256 tokens for guest links & password resets.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-[var(--tf-sidebar)] border border-[var(--tf-border)] space-y-1">
+                      <span className="font-bold text-blue-400">Tenant Isolation</span>
+                      <p className="text-[var(--tf-text-muted)]">Membership verification on 100% of workspace queries.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-[var(--tf-sidebar)] border border-[var(--tf-border)] space-y-1">
+                      <span className="font-bold text-purple-400">SSRF & Rate Limits</span>
+                      <p className="text-[var(--tf-text-muted)]">Blocked local network targets & token bucket limiters.</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -433,13 +478,13 @@ export default function LandingPage() {
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold tf-tag-yellow">
               <span>⚡</span>
-              <span>Complete Productivity Ecosystem</span>
+              <span>Complete SaaS Ecosystem</span>
             </div>
             <h2 className="text-3xl font-extrabold text-[var(--tf-text-main)]">
               All 8 Enterprise Modules Included
             </h2>
             <p className="text-xs text-[var(--tf-text-muted)]">
-              No extra plugins or subscriptions. Everything you need to plan, communicate, and ship products.
+              No extra plugins or subscriptions. Everything you need to plan, communicate, ship products, and protect data.
             </p>
           </div>
 
@@ -462,8 +507,49 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Security Section */}
+        <section id="security" className="py-16 bg-[var(--tf-sidebar)] border-t border-[var(--tf-border)]">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8">
+            <div className="space-y-2">
+              <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider">Hardened Infrastructure</span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-[var(--tf-text-main)]">
+                Built for Security-Conscious Organizations
+              </h2>
+              <p className="text-xs text-[var(--tf-text-muted)] max-w-xl mx-auto">
+                Every request, endpoint, and invitation is protected by defense-in-depth security layers.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+              <div className="p-6 rounded-2xl bg-[var(--tf-card)] border border-[var(--tf-border)] space-y-3">
+                <Shield className="w-8 h-8 text-amber-500" />
+                <h3 className="text-sm font-bold text-[var(--tf-text-main)]">Multi-Tenant Isolation</h3>
+                <p className="text-xs text-[var(--tf-text-muted)]">
+                  Strict workspace membership verification ensures zero cross-tenant data exposure across all queries and API routes.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-[var(--tf-card)] border border-[var(--tf-border)] space-y-3">
+                <Key className="w-8 h-8 text-emerald-500" />
+                <h3 className="text-sm font-bold text-[var(--tf-text-main)]">Hashed Random Tokens</h3>
+                <p className="text-xs text-[var(--tf-text-muted)]">
+                  Cryptographically secure `crypto.randomBytes(32)` tokens and SHA-256 hashing for password resets, client links, and invites.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-[var(--tf-card)] border border-[var(--tf-border)] space-y-3">
+                <Lock className="w-8 h-8 text-blue-500" />
+                <h3 className="text-sm font-bold text-[var(--tf-text-main)]">SSRF & Abuse Shield</h3>
+                <p className="text-xs text-[var(--tf-text-muted)]">
+                  Automated rate-limiting on sensitive auth routes and SSRF protection blocking local network targets on incoming webhooks.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* 1-Click Demo Login Accounts Section */}
-        <section id="demo" className="py-16 bg-[var(--tf-sidebar)] border-t border-[var(--tf-border)]">
+        <section id="demo" className="py-16 bg-[var(--tf-bg)] border-t border-[var(--tf-border)]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-8">
             <div className="space-y-2">
               <span className="text-xs font-mono font-bold text-amber-500 uppercase tracking-wider">Instant Access</span>
@@ -539,7 +625,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-[var(--tf-text-main)]">TaskFlow</span>
-            <span>• Next-Gen Enterprise Workspace</span>
+            <span>• Production-Grade Enterprise Workspace</span>
           </div>
           <p>© 2026 TaskFlow Inc. Built for high-velocity teams.</p>
         </div>
