@@ -13,13 +13,14 @@ import {
   ChevronDown,
   Layers,
   X,
+  Zap,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import CreateProjectModal from '../modals/CreateProjectModal';
 
 export default function Sidebar({ isOpen, onClose }) {
   const pathname = usePathname();
-  const { user, workspaces, activeWorkspace, switchWorkspace } = useWorkspace();
+  const { user, workspaces, activeWorkspace, switchWorkspace, openAutomations } = useWorkspace();
   const [projects, setProjects] = useState([]);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -223,20 +224,32 @@ export default function Sidebar({ isOpen, onClose }) {
           {/* Workspace Settings */}
           <div>
             <span className="px-2 text-[10px] font-mono font-semibold text-[var(--tf-text-subtle)] uppercase tracking-wider block mb-1">
-              Settings
+              Configuration
             </span>
-            <Link
-              href="/settings"
-              onClick={onClose}
-              className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition ${
-                pathname === '/settings'
-                  ? 'bg-[var(--tf-card)] text-[var(--tf-text-main)] border border-[var(--tf-border)] font-semibold shadow-xs'
-                  : 'text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)]'
-              }`}
-            >
-              <Settings className="w-4 h-4 text-[var(--tf-text-muted)]" />
-              <span>Workspace Settings</span>
-            </Link>
+            <div className="space-y-0.5">
+              <button
+                onClick={() => {
+                  openAutomations();
+                  onClose();
+                }}
+                className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)] transition cursor-pointer text-left"
+              >
+                <Zap className="w-4 h-4 text-amber-500" />
+                <span>Automation Rules</span>
+              </button>
+              <Link
+                href="/settings"
+                onClick={onClose}
+                className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition ${
+                  pathname === '/settings'
+                    ? 'bg-[var(--tf-card)] text-[var(--tf-text-main)] border border-[var(--tf-border)] font-semibold shadow-xs'
+                    : 'text-[var(--tf-text-muted)] hover:bg-[var(--tf-hover)] hover:text-[var(--tf-text-main)]'
+                }`}
+              >
+                <Settings className="w-4 h-4 text-[var(--tf-text-muted)]" />
+                <span>Workspace Settings</span>
+              </Link>
+            </div>
           </div>
         </div>
 

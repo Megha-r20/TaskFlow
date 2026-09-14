@@ -39,11 +39,12 @@ model Workspace {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members      WorkspaceMember[]
-  projects     Project[]
-  invitations  Invitation[]
-  labels       Label[]
-  activityLogs ActivityLog[]
+  members         WorkspaceMember[]
+  projects        Project[]
+  invitations     Invitation[]
+  labels          Label[]
+  activityLogs    ActivityLog[]
+  automationRules AutomationRule[]
 
   @@map("workspaces")
 }
@@ -194,4 +195,19 @@ model Invitation {
   createdAt   DateTime  @default(now())
 
   @@map("invitations")
+}
+
+model AutomationRule {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  triggerType String    // e.g. "STATUS_CHANGE"
+  triggerValue String   // e.g. "REVIEW", "DONE", "IN_PROGRESS"
+  actionType  String    // e.g. "AUTO_ASSIGN", "ADD_COMMENT", "CREATE_LOG"
+  actionValue String    // e.g. target userId or tag name
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@map("automation_rules")
 }

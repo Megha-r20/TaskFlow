@@ -8,6 +8,7 @@ import GlobalSearchModal from '../modals/GlobalSearchModal';
 import CreateTaskModal from '../modals/CreateTaskModal';
 import KeyboardShortcutsModal from '../modals/KeyboardShortcutsModal';
 import AiStandupModal from '../modals/AiStandupModal';
+import AutomationRulesModal from '../modals/AutomationRulesModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -27,6 +28,7 @@ export default function AppShell({ children }) {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isAiStandupOpen, setIsAiStandupOpen] = useState(false);
+  const [isAutomationsOpen, setIsAutomationsOpen] = useState(false);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -147,6 +149,7 @@ export default function AppShell({ children }) {
         openCreateTask,
         openShortcuts,
         openAiStandup: () => setIsAiStandupOpen(true),
+        openAutomations: () => setIsAutomationsOpen(true),
       }}
     >
       <RealtimeContext.Provider
@@ -208,6 +211,14 @@ export default function AppShell({ children }) {
           <AiStandupModal
             isOpen={isAiStandupOpen}
             onClose={() => setIsAiStandupOpen(false)}
+          />
+        )}
+
+        {/* Automation Rules Modal */}
+        {isAutomationsOpen && (
+          <AutomationRulesModal
+            isOpen={isAutomationsOpen}
+            onClose={() => setIsAutomationsOpen(false)}
           />
         )}
       </RealtimeContext.Provider>

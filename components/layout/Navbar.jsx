@@ -16,6 +16,7 @@ import {
   Plus,
   Keyboard,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import { useRealtime } from './AppShell';
@@ -24,7 +25,7 @@ import { useTheme } from '../theme/ThemeProvider';
 export default function Navbar({ onOpenMobileSidebar }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, openSearch, openCreateTask, openShortcuts, openAiStandup } = useWorkspace();
+  const { user, openSearch, openCreateTask, openShortcuts, openAiStandup, openAutomations } = useWorkspace();
   const { connectionStatus, registerRealtimeHandler } = useRealtime() || {};
   const { theme, toggleTheme } = useTheme();
 
@@ -195,6 +196,16 @@ export default function Navbar({ onOpenMobileSidebar }) {
           className="md:hidden p-1.5 rounded text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]"
         >
           <Search className="w-4 h-4" />
+        </button>
+
+        {/* Automations Button */}
+        <button
+          onClick={openAutomations}
+          className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs"
+          title="Workspace Automation Rules"
+        >
+          <Zap className="w-3.5 h-3.5 text-amber-500" />
+          <span className="hidden sm:inline">Automations</span>
         </button>
 
         {/* AI Assistant Button */}

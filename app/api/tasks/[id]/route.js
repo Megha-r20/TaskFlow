@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { requireWorkspaceMember, VALID_STATUSES, VALID_PRIORITIES } from '@/lib/permissions';
 import { broadcastEvent, EVENT_TYPES } from '@/lib/events';
+import { runTaskAutomations } from '@/lib/automations';
 
 export async function GET(req, { params }) {
   try {
@@ -192,6 +193,17 @@ export async function PATCH(req, { params }) {
     });
 
     broadcastEvent(EVENT_TYPES.TASK_UPDATED, { task: updatedTask, workspaceId: updatedTask.project.workspaceId });
+
+    // Execute active workspace automations if status was changed
+    if (status && status !== existingTask.status) {
+      runTaskAutomations({
+        taskId: updatedTask.id,
+        previousStatus: existingTask.status,
+        newStatus: status,
+        workspaceId: updatedTask.project.workspaceId,
+        actorId: user.id,
+      }).catch((err) => console.error('Automation execution background error:', err));
+    }
 
     // If someone was newly assigned, notify via SSE too
     if (assigneeId && assigneeId !== existingTask.assigneeId && assigneeId !== user.id) {
