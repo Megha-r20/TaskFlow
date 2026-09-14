@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getAuthUser } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { getSession } from '@/lib/auth';
 
 export async function POST(req) {
   try {
-    const user = await getAuthUser(req);
+    const user = await getSession();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -54,13 +54,10 @@ export async function POST(req) {
     }
 
     if (action === 'STANDUP') {
-      // Fetch user's active tasks in current workspace or across workspaces
-      const targetWorkspaceId = workspaceId || user.workspaces?.[0]?.id;
-
-      const userTasks = await prisma.task.findMany({
+      const userTasks = await db.task.findMany({
         where: {
           assigneeId: user.id,
-          ...(targetWorkspaceId ? { project: { workspaceId: targetWorkspaceId } } : {}),
+          ...(workspaceId ? { project: { workspaceId } } : {}),
         },
         include: {
           project: true,
@@ -70,7 +67,7 @@ export async function POST(req) {
       });
 
       const completed = userTasks.filter((t) => t.status === 'DONE');
-      const inProgress = userTasks.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'IN_REVIEW');
+      const inProgress = userTasks.filter((t) => t.status === 'IN_PROGRESS' || t.status === 'REVIEW');
       const todo = userTasks.filter((t) => t.status === 'TODO');
 
       if (apiKey) {
@@ -149,7 +146,6 @@ function generateSmartSubtasks(title, description = '') {
     subtasks.push('Apply fix & test boundary edge cases');
     subtasks.push('Verify regression behavior across related views');
   } else {
-    // General technical workflow subtasks
     subtasks.push(`Research requirements & technical specs for ${title}`);
     subtasks.push(`Build initial prototype & core implementation`);
     subtasks.push(`Perform code review, styling polish & testing`);
