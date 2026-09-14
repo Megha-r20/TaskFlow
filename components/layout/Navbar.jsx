@@ -13,6 +13,7 @@ import {
   WifiOff,
   Sun,
   Moon,
+  Plus,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import { useRealtime } from './AppShell';
@@ -21,7 +22,7 @@ import { useTheme } from '../theme/ThemeProvider';
 export default function Navbar({ onOpenMobileSidebar }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, openSearch } = useWorkspace();
+  const { user, openSearch, openCreateTask } = useWorkspace();
   const { connectionStatus, registerRealtimeHandler } = useRealtime() || {};
   const { theme, toggleTheme } = useTheme();
 
@@ -178,6 +179,16 @@ export default function Navbar({ onOpenMobileSidebar }) {
 
       {/* Right: Controls */}
       <div className="flex items-center gap-2">
+        {/* + New Task Button */}
+        <button
+          onClick={() => openCreateTask()}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
+          title="Create new task"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">New Task</span>
+        </button>
+
         {/* Mobile search */}
         <button
           onClick={openSearch}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import GlobalSearchModal from '../modals/GlobalSearchModal';
+import CreateTaskModal from '../modals/CreateTaskModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -21,6 +22,8 @@ export default function AppShell({ children }) {
   const [activeWorkspace, setActiveWorkspace] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Global realtime event callbacks — components register handlers here
@@ -63,6 +66,11 @@ export default function AppShell({ children }) {
     }
     router.refresh();
   }, [router]);
+
+  const openCreateTask = useCallback((defaultProjId = null) => {
+    setCreateTaskDefaultProjId(defaultProjId);
+    setIsCreateTaskOpen(true);
+  }, []);
 
   // Keyboard shortcut Cmd+K / Ctrl+K for Global Search
   useEffect(() => {
@@ -110,6 +118,7 @@ export default function AppShell({ children }) {
         switchWorkspace,
         refreshSession: fetchSession,
         openSearch: () => setIsSearchOpen(true),
+        openCreateTask,
       }}
     >
       <RealtimeContext.Provider
@@ -139,6 +148,22 @@ export default function AppShell({ children }) {
           <GlobalSearchModal
             isOpen={isSearchOpen}
             onClose={() => setIsSearchOpen(false)}
+          />
+        )}
+
+        {/* Global Create Task Modal */}
+        {isCreateTaskOpen && (
+          <CreateTaskModal
+            isOpen={isCreateTaskOpen}
+            defaultProjectId={createTaskDefaultProjId}
+            onClose={() => setIsCreateTaskOpen(false)}
+            onSuccess={() => {
+              // Trigger realtime handler if registered or refresh
+              if (realtimeHandlers['TASK_CREATED']) {
+                realtimeHandlers['TASK_CREATED']();
+              }
+              router.refresh();
+            }}
           />
         )}
       </RealtimeContext.Provider>
