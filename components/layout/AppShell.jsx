@@ -30,6 +30,7 @@ export default function AppShell({ children }) {
     try {
       const res = await fetch('/api/auth/me');
       if (!res.ok) {
+        setLoading(false);
         router.push('/login');
         return;
       }
@@ -38,7 +39,7 @@ export default function AppShell({ children }) {
       setWorkspaces(data.user.workspaces || []);
 
       if (data.user.workspaces && data.user.workspaces.length > 0) {
-        const savedWsId = localStorage.getItem('taskflow_active_ws');
+        const savedWsId = typeof window !== 'undefined' ? localStorage.getItem('taskflow_active_ws') : null;
         const matched = data.user.workspaces.find((w) => w.id === savedWsId);
         const selected = matched || data.user.workspaces[0];
         setActiveWorkspace(selected);
@@ -57,7 +58,9 @@ export default function AppShell({ children }) {
 
   const switchWorkspace = useCallback((ws) => {
     setActiveWorkspace(ws);
-    localStorage.setItem('taskflow_active_ws', ws.id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('taskflow_active_ws', ws.id);
+    }
     router.refresh();
   }, [router]);
 
@@ -74,8 +77,6 @@ export default function AppShell({ children }) {
   }, []);
 
   // ── SSE Real-time subscription ──────────────────────────────────────────────
-  // Components can register handlers by calling registerHandler(eventType, fn)
-  // We use a single SSE connection at the AppShell level for efficiency.
   const registerRealtimeHandler = useCallback((eventType, handlerFn) => {
     setRealtimeHandlers((prev) => ({ ...prev, [eventType]: handlerFn }));
     return () => {
@@ -91,10 +92,10 @@ export default function AppShell({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0f17] flex items-center justify-center">
+      <div className="min-h-screen bg-[#191919] text-[#e3e3e3] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium text-slate-400">Loading TaskFlow workspace...</span>
+          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-stone-400">Loading TaskFlow workspace...</span>
         </div>
       </div>
     );
@@ -117,7 +118,7 @@ export default function AppShell({ children }) {
           registerRealtimeHandler,
         }}
       >
-        <div className="min-h-screen bg-[#0b0f17] text-slate-100 flex overflow-hidden">
+        <div className="min-h-screen bg-[#191919] text-[#e3e3e3] flex overflow-hidden">
           {/* Sidebar */}
           <Sidebar
             isOpen={isMobileSidebarOpen}
@@ -127,7 +128,7 @@ export default function AppShell({ children }) {
           {/* Main Content Area */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             <Navbar onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)} />
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#0b0f17]">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#191919]">
               {children}
             </main>
           </div>

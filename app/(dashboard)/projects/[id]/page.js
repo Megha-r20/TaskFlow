@@ -7,8 +7,6 @@ import {
   ListFilter,
   Search,
   Plus,
-  Wifi,
-  WifiOff,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
@@ -64,7 +62,6 @@ export default function ProjectDetailPage({ params }) {
   }, [fetchProject]);
 
   // ── Real-time task sync ──────────────────────────────────────────────────
-  // Instead of full re-fetch, we surgically update local state
   useEffect(() => {
     if (!registerRealtimeHandler) return;
 
@@ -93,7 +90,6 @@ export default function ProjectDetailPage({ params }) {
     const handleTaskDeleted = (data) => {
       if (!data.taskId) return;
       setTasks((prev) => {
-        // Only delete if the task belongs to this project
         const found = prev.find((t) => t.id === data.taskId);
         if (!found) return prev;
         flashUpdate();
@@ -144,15 +140,15 @@ export default function ProjectDetailPage({ params }) {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
-        <div className="h-32 bg-slate-900/40 rounded-2xl border border-white/5" />
-        <div className="h-96 bg-slate-900/40 rounded-2xl border border-white/5" />
+        <div className="h-28 bg-[#202020] rounded-lg border border-[#333]" />
+        <div className="h-96 bg-[#202020] rounded-lg border border-[#333]" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="py-20 text-center text-slate-400 text-sm">
+      <div className="py-20 text-center text-stone-400 font-mono text-xs">
         Project not found or access denied.
       </div>
     );
@@ -164,32 +160,32 @@ export default function ProjectDetailPage({ params }) {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Project Header Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl saas-card space-y-5 relative overflow-hidden">
+      {/* Project Header Banner - Notion Style */}
+      <div className="p-5 sm:p-6 rounded-lg bg-[#202020] border border-[#333] space-y-4 relative overflow-hidden">
         {/* Live update pulse */}
         {recentlyUpdated && (
-          <span className="absolute top-3 right-3 flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 animate-pulse">
+          <span className="absolute top-3 right-3 flex items-center gap-1 text-[10px] font-mono font-semibold text-emerald-400 animate-pulse">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
             Live update
           </span>
         )}
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3.5">
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shrink-0 ring-2 ring-white/20"
-              style={{ backgroundColor: project.color || '#6366f1' }}
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white font-mono font-bold text-sm shrink-0 border border-white/10"
+              style={{ backgroundColor: project.color || '#3b82f6' }}
             >
               {project.key}
             </div>
             <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{project.name}</h2>
-                <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xl font-bold text-[#e3e3e3] tracking-tight">{project.name}</h2>
+                <span className="px-2 py-0.2 text-[10px] font-mono uppercase rounded notion-tag-blue">
                   {project.status}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs text-stone-400 mt-1 max-w-2xl">
                 {project.description || 'No description set for this project.'}
               </p>
             </div>
@@ -197,41 +193,41 @@ export default function ProjectDetailPage({ params }) {
 
           <button
             onClick={() => setIsCreateTaskOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30 ring-1 ring-white/20"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#2c2c2c] hover:bg-[#333] text-[#e3e3e3] font-semibold text-xs transition border border-white/10 shadow-sm"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-amber-400" />
             <span>Create Task</span>
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="pt-4 border-t border-white/5 space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <div className="flex items-center gap-6">
-              <span>Total: <strong className="text-white">{project.totalTasks}</strong></span>
+        <div className="pt-3 border-t border-[#333] space-y-2">
+          <div className="flex items-center justify-between text-xs text-stone-400 font-mono">
+            <div className="flex items-center gap-5">
+              <span>Total: <strong className="text-[#e3e3e3]">{project.totalTasks}</strong></span>
               <span>Done: <strong className="text-emerald-400">{project.completedTasks}</strong></span>
-              <span>Progress: <strong className="text-indigo-400">{completionPct}%</strong></span>
+              <span>Progress: <strong className="text-amber-400">{completionPct}%</strong></span>
             </div>
-            <div className="flex -space-x-2">
+            <div className="flex -space-x-1.5">
               {project.members?.slice(0, 5).map((m) => (
                 <img
                   key={m.id}
                   src={m.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}`}
                   alt={m.name}
                   title={m.name}
-                  className="w-6 h-6 rounded-full object-cover ring-2 ring-[#0f172a]"
+                  className="w-5 h-5 rounded-full object-cover border border-[#333]"
                 />
               ))}
               {project.members?.length > 5 && (
-                <div className="w-6 h-6 rounded-full bg-slate-800 ring-2 ring-[#0f172a] flex items-center justify-center text-[9px] font-bold text-slate-400">
+                <div className="w-5 h-5 rounded-full bg-[#191919] border border-[#333] flex items-center justify-center text-[9px] font-mono text-stone-400">
                   +{project.members.length - 5}
                 </div>
               )}
             </div>
           </div>
-          <div className="h-1.5 bg-slate-800/80 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-[#171717] rounded flex p-0.5 border border-[#333]">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full transition-all duration-500"
+              className="h-full bg-emerald-500 rounded transition-all duration-300"
               style={{ width: `${completionPct}%` }}
             />
           </div>
@@ -239,15 +235,15 @@ export default function ProjectDetailPage({ params }) {
       </div>
 
       {/* Filter & View Switcher Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-3 rounded-2xl bg-[#090d16] border border-white/5">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-lg bg-[#202020] border border-[#333]">
         {/* View Tabs */}
-        <div className="flex items-center gap-1 bg-[#0f1522] p-1 rounded-xl border border-white/5">
+        <div className="flex items-center gap-1 bg-[#191919] p-1 rounded-md border border-[#333]">
           <button
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition ${
               viewMode === 'kanban'
-                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#2c2c2c] text-white font-semibold border border-white/10 shadow-sm'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
             <FolderKanban className="w-3.5 h-3.5" />
@@ -255,10 +251,10 @@ export default function ProjectDetailPage({ params }) {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-medium transition ${
               viewMode === 'list'
-                ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#2c2c2c] text-white font-semibold border border-white/10 shadow-sm'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
             <ListFilter className="w-3.5 h-3.5" />
@@ -267,22 +263,22 @@ export default function ProjectDetailPage({ params }) {
         </div>
 
         {/* Search + Filters */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="relative flex-1 sm:w-52">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative flex-1 sm:w-48">
+            <Search className="w-3.5 h-3.5 text-stone-500 absolute left-2.5 top-2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
-              className="w-full pl-9 pr-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/40"
+              className="w-full pl-8 pr-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs text-[#e3e3e3] placeholder-stone-500 focus:outline-none focus:border-stone-400"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none"
+            className="px-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs font-mono text-stone-300 focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="TODO">Todo</option>
@@ -294,7 +290,7 @@ export default function ProjectDetailPage({ params }) {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-3 py-1.5 bg-[#0f1522] border border-white/5 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none"
+            className="px-2.5 py-1 bg-[#191919] border border-[#333] rounded-md text-xs font-mono text-stone-300 focus:outline-none"
           >
             <option value="">All Priorities</option>
             <option value="LOW">Low</option>
@@ -315,8 +311,8 @@ export default function ProjectDetailPage({ params }) {
         />
       ) : (
         /* List View */
-        <div className="saas-card rounded-2xl overflow-hidden shadow-xl divide-y divide-white/5">
-          <div className="p-3.5 bg-[#090d16] grid grid-cols-12 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <div className="bg-[#202020] rounded-lg border border-[#333] overflow-hidden divide-y divide-[#333]">
+          <div className="p-3 bg-[#222] grid grid-cols-12 text-[10px] font-mono font-semibold uppercase tracking-wider text-stone-400">
             <div className="col-span-6 sm:col-span-7">Task Title</div>
             <div className="col-span-2">Status</div>
             <div className="col-span-2">Priority</div>
@@ -324,19 +320,19 @@ export default function ProjectDetailPage({ params }) {
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="p-12 text-center text-xs text-slate-500 italic">No matching tasks found</div>
+            <div className="p-10 text-center text-xs font-mono text-stone-500 italic">No matching tasks found</div>
           ) : (
             filteredTasks.map((t) => (
               <div
                 key={t.id}
                 onClick={() => setSelectedTaskId(t.id)}
-                className="p-3.5 grid grid-cols-12 items-center text-xs hover:bg-slate-800/40 cursor-pointer transition group"
+                className="p-3 grid grid-cols-12 items-center text-xs hover:bg-[#282828] cursor-pointer transition group"
               >
-                <div className="col-span-6 sm:col-span-7 flex items-center gap-3">
-                  <span className="font-mono text-[10px] font-bold text-indigo-400 px-2 py-0.5 rounded bg-slate-900 border border-indigo-500/20">
+                <div className="col-span-6 sm:col-span-7 flex items-center gap-2.5">
+                  <span className="font-mono text-[10px] text-stone-400 px-1.5 py-0.2 rounded bg-[#191919] border border-[#333]">
                     {project.key}-{t.id.slice(0, 4).toUpperCase()}
                   </span>
-                  <span className="font-bold text-white group-hover:text-indigo-300 transition truncate">{t.title}</span>
+                  <span className="font-medium text-[#e3e3e3] group-hover:text-amber-300 transition truncate">{t.title}</span>
                 </div>
                 <div className="col-span-2">
                   <StatusBadge status={t.status} />
@@ -350,10 +346,10 @@ export default function ProjectDetailPage({ params }) {
                       src={t.assignee.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${t.assignee.name}`}
                       alt={t.assignee.name}
                       title={t.assignee.name}
-                      className="w-5 h-5 rounded-full object-cover ring-1 ring-slate-700"
+                      className="w-5 h-5 rounded-full object-cover border border-[#444]"
                     />
                   ) : (
-                    <span className="text-[10px] text-slate-500">—</span>
+                    <span className="text-[10px] font-mono text-stone-500">—</span>
                   )}
                 </div>
               </div>
@@ -386,18 +382,16 @@ export default function ProjectDetailPage({ params }) {
   );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
 function StatusBadge({ status }) {
   const config = {
-    TODO: 'bg-slate-700/60 text-slate-300',
-    IN_PROGRESS: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
-    REVIEW: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
-    DONE: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
-    CANCELLED: 'bg-red-500/10 text-red-400 border border-red-500/20',
+    TODO: 'notion-tag-gray',
+    IN_PROGRESS: 'notion-tag-blue',
+    REVIEW: 'notion-tag-yellow',
+    DONE: 'notion-tag-green',
+    CANCELLED: 'notion-tag-red',
   };
   return (
-    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${config[status] || config.TODO}`}>
+    <span className={`text-[10px] font-mono uppercase px-2 py-0.2 rounded ${config[status] || config.TODO}`}>
       {status?.replace('_', ' ')}
     </span>
   );
@@ -405,13 +399,13 @@ function StatusBadge({ status }) {
 
 function PriorityBadge({ priority }) {
   const config = {
-    LOW: 'text-slate-400',
-    MEDIUM: 'text-blue-400',
-    HIGH: 'text-amber-400',
-    URGENT: 'text-red-400 font-extrabold',
+    LOW: 'notion-tag-gray',
+    MEDIUM: 'notion-tag-blue',
+    HIGH: 'notion-tag-orange',
+    URGENT: 'notion-tag-red font-semibold',
   };
   return (
-    <span className={`text-[10px] font-bold uppercase ${config[priority] || 'text-slate-400'}`}>
+    <span className={`text-[10px] font-mono uppercase px-2 py-0.2 rounded ${config[priority] || config.LOW}`}>
       {priority}
     </span>
   );
