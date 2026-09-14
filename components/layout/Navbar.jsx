@@ -50,7 +50,6 @@ export default function Navbar({ onOpenMobileSidebar }) {
   useEffect(() => {
     if (!registerRealtimeHandler) return;
     const unsubscribe = registerRealtimeHandler('NOTIFICATION', () => {
-      // A new notification arrived — refresh the list
       fetchNotifications();
     });
     return unsubscribe;
@@ -133,7 +132,7 @@ export default function Navbar({ onOpenMobileSidebar }) {
       ? 'text-emerald-400'
       : connectionStatus === 'connecting'
       ? 'text-amber-400'
-      : 'text-slate-600';
+      : 'text-stone-600';
 
   const connTitle =
     connectionStatus === 'connected'
@@ -145,29 +144,29 @@ export default function Navbar({ onOpenMobileSidebar }) {
       : 'Real-time: Disconnected';
 
   return (
-    <header className="h-16 bg-[#0d121d] border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between z-30 sticky top-0">
+    <header className="h-14 bg-[#191919] border-b border-[#2d2d2d] px-4 sm:px-6 flex items-center justify-between z-30 sticky top-0">
       {/* Left: Title & Mobile Menu */}
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileSidebar}
-          className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+          className="lg:hidden p-1.5 rounded text-stone-400 hover:text-white hover:bg-[#282828]"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-base font-bold text-white tracking-tight">{getPageTitle()}</h1>
+        <h1 className="text-sm font-semibold text-[#e3e3e3] tracking-tight">{getPageTitle()}</h1>
       </div>
 
-      {/* Center: Search trigger */}
+      {/* Center: Search trigger - Notion style */}
       <div className="hidden md:flex flex-1 max-w-md mx-6">
         <button
           onClick={openSearch}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 bg-[#121826] hover:bg-slate-800/70 border border-slate-800 rounded-lg text-slate-400 text-xs transition"
+          className="w-full flex items-center justify-between px-3 py-1 bg-[#222222] hover:bg-[#282828] border border-[#333] rounded-md text-stone-400 text-xs transition"
         >
           <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-slate-500" />
+            <Search className="w-3.5 h-3.5 text-stone-400" />
             <span>Search tasks, projects, members...</span>
           </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700 rounded">
+          <kbd className="px-1.5 py-0.2 text-[10px] font-mono bg-[#191919] text-stone-400 border border-[#333] rounded">
             ⌘K
           </kbd>
         </button>
@@ -178,14 +177,14 @@ export default function Navbar({ onOpenMobileSidebar }) {
         {/* Mobile search */}
         <button
           onClick={openSearch}
-          className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+          className="md:hidden p-1.5 rounded text-stone-400 hover:text-white hover:bg-[#282828]"
         >
-          <Search className="w-5 h-5" />
+          <Search className="w-4 h-4" />
         </button>
 
         {/* Real-time connection indicator */}
         <div
-          className={`hidden sm:flex items-center gap-1 text-[10px] font-semibold ${connColor}`}
+          className={`hidden sm:flex items-center gap-1 text-[10px] font-mono font-medium ${connColor}`}
           title={connTitle}
         >
           {connectionStatus === 'connected' ? (
@@ -202,24 +201,24 @@ export default function Navbar({ onOpenMobileSidebar }) {
         <div className="relative" ref={notifPanelRef}>
           <button
             onClick={() => setIsNotifOpen((prev) => !prev)}
-            className="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="relative p-1.5 rounded text-stone-400 hover:text-white hover:bg-[#282828] transition"
             aria-label="Notifications"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-indigo-500 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-[#0d121d] animate-pulse">
+              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[9px] font-bold font-mono text-black flex items-center justify-center ring-2 ring-[#191919]">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </button>
 
           {isNotifOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#121826] border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="p-3 border-b border-slate-800 flex items-center justify-between bg-[#0e131f]">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#252525] border border-[#333] rounded-lg shadow-2xl z-50 overflow-hidden">
+              <div className="p-3 border-b border-[#333] flex items-center justify-between bg-[#202020]">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-white">Notifications</span>
+                  <span className="text-xs font-semibold text-[#e3e3e3]">Notifications</span>
                   {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-500/20 text-indigo-400">
+                    <span className="px-1.5 py-0.2 text-[10px] font-mono font-semibold rounded bg-amber-500/20 text-amber-300">
                       {unreadCount} new
                     </span>
                   )}
@@ -227,7 +226,7 @@ export default function Navbar({ onOpenMobileSidebar }) {
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllRead}
-                    className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1"
+                    className="text-[11px] font-medium text-amber-400 hover:text-amber-300 transition flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" />
                     Mark all read
@@ -235,35 +234,35 @@ export default function Navbar({ onOpenMobileSidebar }) {
                 )}
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60">
+              <div className="max-h-80 overflow-y-auto divide-y divide-[#333]">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center">
-                    <Bell className="w-8 h-8 text-slate-700 mx-auto mb-2" />
-                    <p className="text-xs text-slate-500">No notifications yet</p>
+                    <Bell className="w-7 h-7 text-stone-600 mx-auto mb-2" />
+                    <p className="text-xs text-stone-500">No notifications yet</p>
                   </div>
                 ) : (
                   notifications.map((n) => (
                     <button
                       key={n.id}
                       onClick={() => handleNotifClick(n)}
-                      className={`w-full text-left p-3.5 transition hover:bg-slate-800/40 ${
-                        !n.isRead ? 'bg-indigo-600/5 border-l-2 border-indigo-500' : ''
+                      className={`w-full text-left p-3 transition hover:bg-[#2e2e2e] ${
+                        !n.isRead ? 'bg-[#2a2a2a] border-l-2 border-amber-500' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className={`text-xs font-bold ${!n.isRead ? 'text-white' : 'text-slate-300'}`}>
+                        <p className={`text-xs font-semibold ${!n.isRead ? 'text-white' : 'text-stone-300'}`}>
                           {n.title}
                         </p>
-                        <span className="text-[10px] text-slate-500 shrink-0">
+                        <span className="text-[10px] font-mono text-stone-500 shrink-0">
                           {new Date(n.createdAt).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
+                      <p className="text-xs text-stone-400 mt-0.5 line-clamp-2">{n.message}</p>
                       {n.linkUrl && (
-                        <span className="text-[10px] text-indigo-400 flex items-center gap-1 mt-1">
+                        <span className="text-[10px] text-amber-400 flex items-center gap-1 mt-1">
                           <ExternalLink className="w-2.5 h-2.5" />
                           View task
                         </span>
@@ -280,27 +279,27 @@ export default function Navbar({ onOpenMobileSidebar }) {
         <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => setIsUserMenuOpen((prev) => !prev)}
-            className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-slate-700 transition"
+            className="flex items-center gap-2 p-0.5 rounded-full hover:ring-2 hover:ring-stone-600 transition"
           >
             <img
               src={user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
               alt={user?.name}
-              className="w-8 h-8 rounded-full object-cover border border-slate-700"
+              className="w-7 h-7 rounded-full object-cover border border-[#333]"
             />
           </button>
 
           {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-[#121826] border border-slate-800 rounded-xl shadow-2xl z-50 py-1 divide-y divide-slate-800/80">
-              <div className="px-4 py-3">
-                <p className="text-xs font-bold text-white truncate">{user?.name}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
+            <div className="absolute right-0 mt-2 w-48 bg-[#252525] border border-[#333] rounded-lg shadow-2xl z-50 py-1 divide-y divide-[#333]">
+              <div className="px-3.5 py-2.5">
+                <p className="text-xs font-semibold text-[#e3e3e3] truncate">{user?.name}</p>
+                <p className="text-[11px] text-stone-400 truncate">{user?.email}</p>
               </div>
               <div className="py-1">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-red-400 hover:bg-red-500/10 transition text-left"
+                  className="w-full flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition text-left"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                   <span>Sign out</span>
                 </button>
               </div>

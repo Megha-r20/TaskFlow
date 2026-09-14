@@ -9,11 +9,11 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
   const [name, setName] = useState('');
   const [key, setKey] = useState('');
   const [description, setDescription] = useState('');
-  const [color, setColor] = useState('#6366f1');
+  const [color, setColor] = useState('#3b82f6');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const colors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#ef4444'];
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444'];
 
   const handleNameChange = (e) => {
     const val = e.target.value;
@@ -57,29 +57,29 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="fixed inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-[#121826] border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-10">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-white font-bold text-base">
-            <FolderPlus className="w-5 h-5 text-indigo-400" />
+      <div className="relative w-full max-w-lg bg-[#202020] border border-[#333] rounded-lg shadow-2xl overflow-hidden z-10">
+        <div className="p-3.5 border-b border-[#333] bg-[#222] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[#e3e3e3] font-semibold text-sm">
+            <FolderPlus className="w-4 h-4 text-amber-400" />
             <span>Create New Project</span>
           </div>
-          <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white">
+          <button onClick={onClose} className="p-1 rounded text-stone-400 hover:text-white hover:bg-[#2e2e2e]">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+            <div className="p-2.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
               {error}
             </div>
           )}
 
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider mb-1">
                 Project Name
               </label>
               <input
@@ -88,12 +88,12 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                 value={name}
                 onChange={handleNameChange}
                 placeholder="Mobile App v2.0"
-                className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-1.5 bg-[#191919] border border-[#333] rounded-md text-xs text-[#e3e3e3] focus:outline-none focus:border-stone-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider mb-1">
                 Key (Prefix)
               </label>
               <input
@@ -103,13 +103,13 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                 value={key}
                 onChange={(e) => setKey(e.target.value.toUpperCase())}
                 placeholder="MOB"
-                className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white uppercase font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-1.5 bg-[#191919] border border-[#333] rounded-md text-xs text-[#e3e3e3] uppercase font-mono focus:outline-none focus:border-stone-400"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+            <label className="block text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider mb-1">
               Description (Optional)
             </label>
             <textarea
@@ -117,12 +117,12 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Outline project scope, objectives, and goals..."
-              className="w-full px-3 py-2 bg-[#0b0f17] border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="w-full px-3 py-1.5 bg-[#191919] border border-[#333] rounded-md text-xs text-[#e3e3e3] focus:outline-none focus:border-stone-400 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider mb-1.5">
               Accent Color
             </label>
             <div className="flex items-center gap-3">
@@ -131,8 +131,8 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-6 h-6 rounded-full transition transform ${
-                    color === c ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-[#121826]' : 'opacity-80 hover:opacity-100'
+                  className={`w-5 h-5 rounded-full transition transform ${
+                    color === c ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-[#202020]' : 'opacity-70 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -140,18 +140,18 @@ export default function CreateProjectModal({ isOpen, onClose, onSuccess }) {
             </div>
           </div>
 
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+          <div className="pt-3 flex items-center justify-end gap-2 border-t border-[#333]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="px-3.5 py-1.5 rounded-md text-xs font-medium text-stone-400 hover:text-white hover:bg-[#282828] transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-white bg-[#2c2c2c] hover:bg-[#333] border border-white/10 transition disabled:opacity-50 shadow-sm"
             >
               {loading ? 'Creating...' : 'Create Project'}
             </button>

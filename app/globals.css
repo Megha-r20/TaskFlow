@@ -1,14 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --notion-bg: #191919;
+  --notion-sidebar: #202020;
+  --notion-card: #252525;
+  --notion-border: rgba(255, 255, 255, 0.08);
+  --notion-hover: rgba(255, 255, 255, 0.055);
 }
 
 body {
-  background-color: #080c14;
-  color: #f1f5f9;
+  background-color: var(--notion-bg);
+  color: #e3e3e3;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -16,46 +21,96 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  letter-spacing: -0.02em;
 }
 
 .font-mono {
   font-family: var(--font-mono);
 }
 
-/* Linear-style Surface Glassmorphism */
-.saas-card {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.7) 0%, rgba(11, 17, 30, 0.8) 100%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+/* Notion Card Surface */
+.notion-card {
+  background-color: var(--notion-card);
+  border: 1px solid var(--notion-border);
+  border-radius: 8px;
 }
 
-.saas-card-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.notion-card-hover {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.saas-card-hover:hover {
-  border-color: rgba(99, 102, 241, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 30px -10px rgba(99, 102, 241, 0.15);
+.notion-card-hover:hover {
+  background-color: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Linear Glowing Accents */
-.glow-indigo {
-  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
+/* Notion Callout Box */
+.notion-callout {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  padding: 12px 16px;
 }
 
-.glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+/* Notion Tag Badges */
+.notion-tag-gray {
+  background-color: rgba(120, 119, 116, 0.2);
+  color: #9b9b9b;
+  border: 1px solid rgba(120, 119, 116, 0.3);
 }
 
-.glow-amber {
-  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25);
+.notion-tag-brown {
+  background-color: rgba(147, 114, 100, 0.2);
+  color: #d4a38e;
+  border: 1px solid rgba(147, 114, 100, 0.3);
 }
 
-/* Custom Scrollbars */
+.notion-tag-orange {
+  background-color: rgba(217, 115, 13, 0.2);
+  color: #ffa344;
+  border: 1px solid rgba(217, 115, 13, 0.3);
+}
+
+.notion-tag-yellow {
+  background-color: rgba(203, 145, 47, 0.2);
+  color: #ffdc73;
+  border: 1px solid rgba(203, 145, 47, 0.3);
+}
+
+.notion-tag-green {
+  background-color: rgba(68, 131, 97, 0.25);
+  color: #73d49b;
+  border: 1px solid rgba(68, 131, 97, 0.35);
+}
+
+.notion-tag-blue {
+  background-color: rgba(51, 126, 169, 0.25);
+  color: #70baff;
+  border: 1px solid rgba(51, 126, 169, 0.35);
+}
+
+.notion-tag-purple {
+  background-color: rgba(144, 101, 176, 0.25);
+  color: #cbb2fe;
+  border: 1px solid rgba(144, 101, 176, 0.35);
+}
+
+.notion-tag-pink {
+  background-color: rgba(193, 76, 138, 0.25);
+  color: #ff94cf;
+  border: 1px solid rgba(193, 76, 138, 0.35);
+}
+
+.notion-tag-red {
+  background-color: rgba(212, 76, 71, 0.25);
+  color: #ff8e89;
+  border: 1px solid rgba(212, 76, 71, 0.35);
+}
+
+/* Custom Notion Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,31 +118,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Subtle Shimmer Animations */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2.5s infinite;
+  background: rgba(255, 255, 255, 0.25);
 }

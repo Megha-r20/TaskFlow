@@ -12,9 +12,6 @@ import {
   Calendar,
   ArrowRight,
   Plus,
-  Layers,
-  Sparkles,
-  User,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
@@ -65,218 +62,208 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
-        <div className="h-28 bg-slate-900/40 rounded-2xl border border-white/5" />
+        <div className="h-24 bg-[#202020] rounded-lg border border-[#333]" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-slate-900/40 rounded-2xl border border-white/5" />
+            <div key={i} className="h-28 bg-[#202020] rounded-lg border border-[#333]" />
           ))}
         </div>
-        <div className="h-64 bg-slate-900/40 rounded-2xl border border-white/5" />
+        <div className="h-64 bg-[#202020] rounded-lg border border-[#333]" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      {/* Top Banner Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-[#0f172a] to-[#080c14] border border-indigo-500/20 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] pointer-events-none rounded-full" />
-
-        <div className="space-y-2 z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Workspace Telemetry & Productivity</span>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Top Notion Callout Banner */}
+      <div className="p-5 sm:p-6 rounded-lg bg-[#202020] border border-[#333] flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
+        <div className="space-y-1.5 z-10">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-xs font-mono font-medium notion-tag-yellow">
+            <span>🚀</span>
+            <span>Workspace Telemetry</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#e3e3e3] tracking-tight">
             {activeWorkspace?.name} Overview
           </h2>
-          <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
-            Real-time project completion velocity, upcoming task deadlines, and live activity streams.
+          <p className="text-xs text-stone-400 max-w-xl">
+            Real-time project completion velocity, task deadlines, and workspace activity feeds.
           </p>
         </div>
 
         <div className="flex items-center gap-3 z-10">
           <button
             onClick={() => setIsCreateTaskOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-600/30 ring-1 ring-white/20"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[#2c2c2c] hover:bg-[#333] text-[#e3e3e3] font-semibold text-xs transition border border-white/10 shadow-sm"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-amber-400" />
             <span>Create Task</span>
           </button>
         </div>
       </div>
 
-      {/* Metric Telemetry Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Metric Cards Grid - Notion Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Projects */}
-        <div className="p-5 rounded-2xl saas-card saas-card-hover space-y-3">
+        <div className="p-4 rounded-lg bg-[#202020] border border-[#333] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Projects</span>
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-              <FolderKanban className="w-4 h-4" />
-            </div>
+            <span className="text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider">Projects</span>
+            <FolderKanban className="w-4 h-4 text-stone-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-extrabold text-white">{stats?.totalProjects || 0}</p>
-            <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">
-              Active repositories
+            <p className="text-2xl font-bold text-[#e3e3e3]">{stats?.totalProjects || 0}</p>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded notion-tag-blue">
+              Active
             </span>
           </div>
         </div>
 
-        {/* Completed Tasks & Velocity */}
-        <div className="p-5 rounded-2xl saas-card saas-card-hover space-y-3">
+        {/* Completed Tasks */}
+        <div className="p-4 rounded-lg bg-[#202020] border border-[#333] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Completed Tasks</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
+            <span className="text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider">Completed Tasks</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-extrabold text-white">{stats?.completedTasks || 0}</p>
-            <span className="text-xs font-bold text-emerald-400">({stats?.completionRate || 0}%)</span>
+            <p className="text-2xl font-bold text-[#e3e3e3]">{stats?.completedTasks || 0}</p>
+            <span className="text-xs font-mono font-semibold text-emerald-400">({stats?.completionRate || 0}%)</span>
           </div>
-          <p className="text-[11px] text-slate-500">of {stats?.totalTasks || 0} total workspace tasks</p>
+          <p className="text-[10px] text-stone-500 font-mono">of {stats?.totalTasks || 0} total tasks</p>
         </div>
 
-        {/* Pending & In Progress */}
-        <div className="p-5 rounded-2xl saas-card saas-card-hover space-y-3">
+        {/* Pending Tasks */}
+        <div className="p-4 rounded-lg bg-[#202020] border border-[#333] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Tasks</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
+            <span className="text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider">Pending Tasks</span>
+            <Clock className="w-4 h-4 text-amber-400" />
           </div>
-          <p className="text-3xl font-extrabold text-white">{stats?.pendingTasks || 0}</p>
-          <p className="text-[11px] text-slate-500">
-            {stats?.inProgressTasks || 0} currently in active progress
+          <p className="text-2xl font-bold text-[#e3e3e3]">{stats?.pendingTasks || 0}</p>
+          <p className="text-[10px] text-stone-500 font-mono">
+            {stats?.inProgressTasks || 0} in active progress
           </p>
         </div>
 
-        {/* Overdue Alert */}
-        <div className="p-5 rounded-2xl saas-card saas-card-hover space-y-3">
+        {/* Overdue Tasks */}
+        <div className="p-4 rounded-lg bg-[#202020] border border-[#333] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Overdue Tasks</span>
-            <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
+            <span className="text-[11px] font-mono font-medium text-stone-400 uppercase tracking-wider">Overdue Tasks</span>
+            <AlertTriangle className="w-4 h-4 text-red-400" />
           </div>
-          <p className="text-3xl font-extrabold text-red-400">{stats?.overdueTasks || 0}</p>
-          <p className="text-[11px] text-slate-500">Requires immediate attention</p>
+          <p className="text-2xl font-bold text-red-400">{stats?.overdueTasks || 0}</p>
+          <p className="text-[10px] text-stone-500 font-mono">Requires attention</p>
         </div>
       </div>
 
-      {/* Main Grid: Distribution Chart & Activity Timeline */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Grid: Distribution & Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Status Distribution Progress Bar */}
-          <div className="p-6 rounded-2xl saas-card space-y-5">
+          {/* Status Breakdown Bar */}
+          <div className="p-5 rounded-lg bg-[#202020] border border-[#333] space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-indigo-400" />
-                <span>Task Status Breakdown & Completion Velocity</span>
+              <h3 className="text-xs font-mono font-semibold text-[#e3e3e3] uppercase tracking-wider flex items-center gap-2">
+                <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                <span>Task Status Breakdown</span>
               </h3>
-              <span className="text-xs font-bold text-emerald-400">{stats?.completionRate || 0}% Complete</span>
+              <span className="text-xs font-mono text-emerald-400 font-medium">{stats?.completionRate || 0}% Complete</span>
             </div>
 
             {/* Segmented Progress bar */}
-            <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex p-0.5 border border-white/5">
+            <div className="h-2.5 w-full bg-[#171717] rounded flex p-0.5 border border-[#333]">
               <div
                 style={{
                   width: `${stats?.totalTasks ? (stats.completedTasks / stats.totalTasks) * 100 : 0}%`,
                 }}
-                className="bg-emerald-500 rounded-l-full transition-all duration-500"
+                className="bg-emerald-500 rounded-l transition-all duration-300"
                 title="Done"
               />
               <div
                 style={{
                   width: `${stats?.totalTasks ? (stats.inProgressTasks / stats.totalTasks) * 100 : 0}%`,
                 }}
-                className="bg-blue-500 transition-all duration-500"
+                className="bg-blue-500 transition-all duration-300"
                 title="In Progress"
               />
               <div
                 style={{
                   width: `${stats?.totalTasks ? (stats.reviewTasks / stats.totalTasks) * 100 : 0}%`,
                 }}
-                className="bg-amber-500 transition-all duration-500"
+                className="bg-amber-500 transition-all duration-300"
                 title="Review"
               />
               <div
                 style={{
                   width: `${stats?.totalTasks ? (stats.todoTasks / stats.totalTasks) * 100 : 0}%`,
                 }}
-                className="bg-slate-700 rounded-r-full transition-all duration-500"
+                className="bg-stone-600 rounded-r transition-all duration-300"
                 title="Todo"
               />
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-3 rounded-xl bg-[#090d16] border border-white/5">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Todo</span>
-                <span className="text-sm font-extrabold text-slate-300">{stats?.todoTasks || 0}</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              <div className="p-2.5 rounded bg-[#191919] border border-[#333]">
+                <span className="text-[10px] text-stone-500 font-mono block">TODO</span>
+                <span className="text-xs font-mono font-semibold text-stone-300">{stats?.todoTasks || 0}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#090d16] border border-white/5">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">In Progress</span>
-                <span className="text-sm font-extrabold text-blue-400">{stats?.inProgressTasks || 0}</span>
+              <div className="p-2.5 rounded bg-[#191919] border border-[#333]">
+                <span className="text-[10px] text-stone-500 font-mono block">IN PROGRESS</span>
+                <span className="text-xs font-mono font-semibold text-blue-400">{stats?.inProgressTasks || 0}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#090d16] border border-white/5">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">In Review</span>
-                <span className="text-sm font-extrabold text-amber-400">{stats?.reviewTasks || 0}</span>
+              <div className="p-2.5 rounded bg-[#191919] border border-[#333]">
+                <span className="text-[10px] text-stone-500 font-mono block">IN REVIEW</span>
+                <span className="text-xs font-mono font-semibold text-amber-400">{stats?.reviewTasks || 0}</span>
               </div>
-              <div className="p-3 rounded-xl bg-[#090d16] border border-white/5">
-                <span className="text-[10px] text-slate-500 font-bold uppercase block">Completed</span>
-                <span className="text-sm font-extrabold text-emerald-400">{stats?.completedTasks || 0}</span>
+              <div className="p-2.5 rounded bg-[#191919] border border-[#333]">
+                <span className="text-[10px] text-stone-500 font-mono block">DONE</span>
+                <span className="text-xs font-mono font-semibold text-emerald-400">{stats?.completedTasks || 0}</span>
               </div>
             </div>
           </div>
 
-          {/* Upcoming Milestones */}
-          <div className="p-6 rounded-2xl saas-card space-y-4">
+          {/* Upcoming Deadlines */}
+          <div className="p-5 rounded-lg bg-[#202020] border border-[#333] space-y-3.5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-amber-400" />
-                <span>Upcoming Milestones & Deadlines</span>
+              <h3 className="text-xs font-mono font-semibold text-[#e3e3e3] uppercase tracking-wider flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                <span>Upcoming Deadlines</span>
               </h3>
-              <Link href="/my-tasks" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+              <Link href="/my-tasks" className="text-xs font-mono text-amber-400 hover:underline flex items-center gap-1">
                 My Tasks <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             <div className="space-y-2">
               {deadlines.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-500 italic">No upcoming deadlines</div>
+                <div className="py-6 text-center text-xs text-stone-500 italic">No upcoming deadlines</div>
               ) : (
                 deadlines.map((task) => (
                   <Link
                     key={task.id}
                     href={`/projects/${task.projectId}?task=${task.id}`}
-                    className="flex items-center justify-between p-3.5 rounded-xl bg-[#090d16] hover:bg-slate-800/60 border border-white/5 transition group"
+                    className="flex items-center justify-between p-3 rounded bg-[#191919] hover:bg-[#252525] border border-[#333] transition group"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow"
-                        style={{ backgroundColor: task.project?.color || '#6366f1' }}
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: task.project?.color || '#3b82f6' }}
                       />
                       <div>
-                        <p className="text-xs font-bold text-white group-hover:text-indigo-300 transition">
+                        <p className="text-xs font-medium text-[#e3e3e3] group-hover:text-amber-300 transition">
                           {task.title}
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">
+                        <p className="text-[10px] font-mono text-stone-500 mt-0.5">
                           {task.project?.name} ({task.project?.key})
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                        Due {new Date(task.dueDate).toLocaleDateString()}
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded notion-tag-yellow">
+                        {new Date(task.dueDate).toLocaleDateString()}
                       </span>
                       {task.assignee && (
                         <img
                           src={task.assignee.avatarUrl}
                           alt={task.assignee.name}
-                          className="w-6 h-6 rounded-full object-cover ring-2 ring-indigo-500/20"
+                          className="w-5 h-5 rounded-full object-cover border border-[#444]"
                         />
                       )}
                     </div>
@@ -288,27 +275,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column: Live Activity Feed */}
-        <div className="p-6 rounded-2xl saas-card space-y-4">
-          <h3 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-            <Activity className="w-4 h-4 text-emerald-400" />
+        <div className="p-5 rounded-lg bg-[#202020] border border-[#333] space-y-3.5">
+          <h3 className="text-xs font-mono font-semibold text-[#e3e3e3] uppercase tracking-wider flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5 text-emerald-400" />
             <span>Activity Stream</span>
           </h3>
 
-          <div className="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
             {activity.length === 0 ? (
-              <div className="py-12 text-center text-xs text-slate-500 italic">No activity logged yet</div>
+              <div className="py-10 text-center text-xs text-stone-500 italic">No activity logged yet</div>
             ) : (
               activity.map((act) => (
-                <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-[#090d16] border border-white/5 text-xs">
+                <div key={act.id} className="flex items-start gap-2.5 p-2.5 rounded bg-[#191919] border border-[#333] text-xs">
                   <img
                     src={act.user?.avatarUrl}
                     alt={act.user?.name}
-                    className="w-7 h-7 rounded-full object-cover mt-0.5 shrink-0 ring-1 ring-slate-700"
+                    className="w-6 h-6 rounded-full object-cover mt-0.5 shrink-0 border border-stone-700"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-white truncate">{act.user?.name}</p>
-                    <p className="text-slate-300 text-[11px] mt-0.5 leading-snug">{act.details}</p>
-                    <span className="text-[9px] text-slate-500 font-mono block mt-1">
+                    <p className="font-semibold text-[#e3e3e3] truncate">{act.user?.name}</p>
+                    <p className="text-stone-300 text-[11px] mt-0.5 leading-snug">{act.details}</p>
+                    <span className="text-[9px] text-stone-500 font-mono block mt-1">
                       {new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>

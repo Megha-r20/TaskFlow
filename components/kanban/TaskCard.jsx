@@ -1,39 +1,19 @@
 'use client';
 
-import { Calendar, MessageSquare, AlertCircle, Clock } from 'lucide-react';
+import { Calendar, MessageSquare } from 'lucide-react';
 
 export default function TaskCard({ task, onClick, onDragStart }) {
   const getPriorityBadge = (priority) => {
     switch (priority) {
       case 'URGENT':
-        return {
-          dot: 'bg-red-500',
-          text: 'text-red-400',
-          bg: 'bg-red-500/10 border-red-500/20',
-          label: 'Urgent',
-        };
+        return { badgeClass: 'notion-tag-red', label: 'Urgent' };
       case 'HIGH':
-        return {
-          dot: 'bg-orange-500',
-          text: 'text-orange-400',
-          bg: 'bg-orange-500/10 border-orange-500/20',
-          label: 'High',
-        };
+        return { badgeClass: 'notion-tag-orange', label: 'High' };
       case 'MEDIUM':
-        return {
-          dot: 'bg-blue-500',
-          text: 'text-blue-400',
-          bg: 'bg-blue-500/10 border-blue-500/20',
-          label: 'Medium',
-        };
+        return { badgeClass: 'notion-tag-blue', label: 'Medium' };
       case 'LOW':
       default:
-        return {
-          dot: 'bg-slate-400',
-          text: 'text-slate-400',
-          bg: 'bg-slate-500/10 border-slate-500/20',
-          label: 'Low',
-        };
+        return { badgeClass: 'notion-tag-gray', label: 'Low' };
     }
   };
 
@@ -49,43 +29,40 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       draggable
       onDragStart={(e) => onDragStart(e, task.id)}
       onClick={onClick}
-      className="group p-4 rounded-xl saas-card saas-card-hover cursor-grab active:cursor-grabbing space-y-3 relative overflow-hidden"
+      className="group p-3 rounded-md bg-[#252525] hover:bg-[#2a2a2a] border border-[#333] hover:border-[#444] cursor-grab active:cursor-grabbing space-y-2.5 transition relative overflow-hidden"
     >
-      {/* Subtle top indicator bar */}
+      {/* Top project color indicator line */}
       <div
-        className="absolute top-0 left-0 right-0 h-0.5 opacity-60"
-        style={{ backgroundColor: task.project?.color || '#6366f1' }}
+        className="absolute top-0 left-0 right-0 h-0.5"
+        style={{ backgroundColor: task.project?.color || '#3b82f6' }}
       />
 
       {/* Header: Project Key & Priority Badge */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-900/90 text-indigo-400 border border-indigo-500/20 shadow-inner">
+      <div className="flex items-center justify-between gap-2 pt-0.5">
+        <span className="text-[10px] font-mono font-medium px-1.5 py-0.2 rounded bg-[#1c1c1c] text-stone-400 border border-stone-800">
           {task.project?.key}-{task.id.slice(0, 4)}
         </span>
-        <div
-          className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold ${prio.bg} ${prio.text}`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${prio.dot}`} />
-          <span>{prio.label}</span>
-        </div>
+        <span className={`px-2 py-0.2 rounded text-[10px] font-mono font-medium ${prio.badgeClass}`}>
+          {prio.label}
+        </span>
       </div>
 
       {/* Task Title */}
-      <h4 className="text-xs font-semibold text-slate-100 group-hover:text-indigo-300 transition-colors leading-snug line-clamp-2">
+      <h4 className="text-xs font-semibold text-[#e3e3e3] group-hover:text-amber-300 transition-colors leading-snug line-clamp-2">
         {task.title}
       </h4>
 
-      {/* Labels */}
+      {/* Labels - Notion Style Tags */}
       {task.labels && task.labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 pt-0.5">
+        <div className="flex flex-wrap gap-1">
           {task.labels.map((tl) => (
             <span
               key={tl.label?.id || tl.labelId}
-              className="text-[9px] font-bold px-2 py-0.5 rounded-full border"
+              className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded border"
               style={{
-                backgroundColor: `${tl.label?.color || '#3b82f6'}15`,
-                color: tl.label?.color || '#3b82f6',
-                borderColor: `${tl.label?.color || '#3b82f6'}30`,
+                backgroundColor: `${tl.label?.color || '#3b82f6'}20`,
+                color: tl.label?.color || '#93c5fd',
+                borderColor: `${tl.label?.color || '#3b82f6'}40`,
               }}
             >
               {tl.label?.name}
@@ -95,17 +72,17 @@ export default function TaskCard({ task, onClick, onDragStart }) {
       )}
 
       {/* Card Footer: Due Date, Comments, Assignee */}
-      <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px]">
-        <div className="flex items-center gap-3">
+      <div className="pt-2 border-t border-[#333] flex items-center justify-between text-[11px]">
+        <div className="flex items-center gap-2.5">
           {task.dueDate && (
             <div
-              className={`flex items-center gap-1 font-medium px-2 py-0.5 rounded ${
+              className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded ${
                 isOverdue
-                  ? 'bg-red-500/10 text-red-400 border border-red-500/20 font-bold'
-                  : 'text-slate-400'
+                  ? 'notion-tag-red font-semibold'
+                  : 'text-stone-400 bg-[#1c1c1c]'
               }`}
             >
-              <Calendar className="w-3 h-3" />
+              <Calendar className="w-3 h-3 text-stone-400" />
               <span>
                 {new Date(task.dueDate).toLocaleDateString(undefined, {
                   month: 'short',
@@ -116,9 +93,9 @@ export default function TaskCard({ task, onClick, onDragStart }) {
           )}
 
           {task._count?.comments > 0 && (
-            <div className="flex items-center gap-1 text-slate-400">
-              <MessageSquare className="w-3 h-3 text-slate-500" />
-              <span className="font-semibold text-[10px]">{task._count.comments}</span>
+            <div className="flex items-center gap-1 text-stone-400 font-mono text-[10px]">
+              <MessageSquare className="w-3 h-3 text-stone-500" />
+              <span>{task._count.comments}</span>
             </div>
           )}
         </div>
@@ -128,10 +105,10 @@ export default function TaskCard({ task, onClick, onDragStart }) {
             src={task.assignee.avatarUrl}
             alt={task.assignee.name}
             title={`Assigned to ${task.assignee.name}`}
-            className="w-5 h-5 rounded-full object-cover ring-2 ring-indigo-500/20 shadow"
+            className="w-5 h-5 rounded-full object-cover border border-[#444]"
           />
         ) : (
-          <div className="w-5 h-5 rounded-full border border-dashed border-slate-700 flex items-center justify-center text-[9px] text-slate-500">
+          <div className="w-5 h-5 rounded-full border border-dashed border-stone-700 flex items-center justify-center text-[9px] text-stone-500 font-mono">
             ?
           </div>
         )}
