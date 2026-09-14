@@ -13,6 +13,7 @@ import FocusModeModal from '../modals/FocusModeModal';
 import GanttTimelineModal from '../modals/GanttTimelineModal';
 import WhiteboardModal from '../modals/WhiteboardModal';
 import WorkloadModal from '../modals/WorkloadModal';
+import HuddleModal from '../modals/HuddleModal';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -37,6 +38,9 @@ export default function AppShell({ children }) {
   const [isGanttOpen, setIsGanttOpen] = useState(false);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [isWorkloadOpen, setIsWorkloadOpen] = useState(false);
+  const [isHuddleActive, setIsHuddleActive] = useState(false);
+  const [isHuddleMinimized, setIsHuddleMinimized] = useState(false);
+  const [huddleProject, setHuddleProject] = useState(null);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -166,6 +170,19 @@ export default function AppShell({ children }) {
         openGanttTimeline: () => setIsGanttOpen(true),
         openWhiteboard: () => setIsWhiteboardOpen(true),
         openWorkloadPlanner: () => setIsWorkloadOpen(true),
+        isHuddleActive,
+        isHuddleMinimized,
+        startHuddle: (proj = null) => {
+          setHuddleProject(proj);
+          setIsHuddleActive(true);
+          setIsHuddleMinimized(false);
+        },
+        minimizeHuddle: () => setIsHuddleMinimized(true),
+        maximizeHuddle: () => setIsHuddleMinimized(false),
+        leaveHuddle: () => {
+          setIsHuddleActive(false);
+          setIsHuddleMinimized(false);
+        },
       }}
     >
       <RealtimeContext.Provider
@@ -267,6 +284,21 @@ export default function AppShell({ children }) {
           <WorkloadModal
             isOpen={isWorkloadOpen}
             onClose={() => setIsWorkloadOpen(false)}
+          />
+        )}
+
+        {/* Team Audio/Video Huddle & Meeting Room Modal / Dock */}
+        {isHuddleActive && (
+          <HuddleModal
+            isOpen={isHuddleActive}
+            isMinimized={isHuddleMinimized}
+            project={huddleProject}
+            onMinimize={() => setIsHuddleMinimized(true)}
+            onMaximize={() => setIsHuddleMinimized(false)}
+            onLeave={() => {
+              setIsHuddleActive(false);
+              setIsHuddleMinimized(false);
+            }}
           />
         )}
       </RealtimeContext.Provider>

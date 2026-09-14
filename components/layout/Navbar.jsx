@@ -18,6 +18,7 @@ import {
   Sparkles,
   Zap,
   BrainCircuit,
+  Radio,
 } from 'lucide-react';
 import { useWorkspace } from './AppShell';
 import { useRealtime } from './AppShell';
@@ -26,7 +27,7 @@ import { useTheme } from '../theme/ThemeProvider';
 export default function Navbar({ onOpenMobileSidebar }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, openSearch, openCreateTask, openShortcuts, openAiStandup, openAutomations, openFocusMode } = useWorkspace();
+  const { user, openSearch, openCreateTask, openShortcuts, openAiStandup, openAutomations, openFocusMode, startHuddle, maximizeHuddle, isHuddleActive, isHuddleMinimized } = useWorkspace();
   const { connectionStatus, registerRealtimeHandler } = useRealtime() || {};
   const { theme, toggleTheme } = useTheme();
 
@@ -197,6 +198,26 @@ export default function Navbar({ onOpenMobileSidebar }) {
           className="md:hidden p-1.5 rounded text-[var(--tf-text-muted)] hover:text-[var(--tf-text-main)] hover:bg-[var(--tf-hover)]"
         >
           <Search className="w-4 h-4" />
+        </button>
+
+        {/* Live Huddle Meeting Button */}
+        <button
+          onClick={() => {
+            if (isHuddleActive && isHuddleMinimized) {
+              maximizeHuddle();
+            } else if (!isHuddleActive) {
+              startHuddle();
+            }
+          }}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer border ${
+            isHuddleActive
+              ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
+              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+          }`}
+          title={isHuddleActive ? 'Active Huddle - Click to Expand' : 'Start Team Audio/Video Huddle'}
+        >
+          <Radio className={`w-3.5 h-3.5 ${isHuddleActive ? 'text-rose-500' : 'text-amber-500'}`} />
+          <span className="hidden sm:inline">{isHuddleActive ? 'Live Huddle' : 'Huddle'}</span>
         </button>
 
         {/* Keyboard Shortcuts Trigger Button */}

@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Calendar,
   Sparkles,
+  Radio,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
@@ -28,7 +29,7 @@ export default function ProjectDetailPage({ params }) {
   const searchParams = useSearchParams();
   const initialTaskId = searchParams.get('task');
 
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, startHuddle } = useWorkspace();
   const { registerRealtimeHandler } = useRealtime() || {};
 
   const [project, setProject] = useState(null);
@@ -250,6 +251,15 @@ export default function ProjectDetailPage({ params }) {
                 </div>
               )}
             </div>
+
+            <button
+              onClick={() => startHuddle(project)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-semibold text-xs transition shadow-xs cursor-pointer"
+              title="Start Project Huddle Call"
+            >
+              <Radio className="w-4 h-4 text-amber-500" />
+              <span>Project Huddle</span>
+            </button>
 
             <button
               onClick={() => setIsCreateTaskOpen(true)}
