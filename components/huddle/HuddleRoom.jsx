@@ -30,8 +30,8 @@ import { useWorkspace } from '../layout/AppShell';
 export default function HuddleRoom({ project = null, onMinimize = null, onLeave = null }) {
   const { user, activeWorkspace, openScheduleMeeting } = useWorkspace();
 
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Mic OFF by default
+  const [isVideoOff, setIsVideoOff] = useState(true); // Camera OFF by default
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [activeTab, setActiveTab] = useState('grid'); // 'grid' | 'chat' | 'notes' | 'upcoming'
   const [scheduledMeetings, setScheduledMeetings] = useState([]);
@@ -59,17 +59,15 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
 
   // Chat & Notes State
   const [chatMessages, setChatMessages] = useState([
-    { id: 1, sender: 'Sarah Jenkins', text: 'Hey team! Let’s review the sprint backlog & Gantt timeline.', time: '11:30 AM' },
-    { id: 2, sender: 'Alex Rivera', text: 'Ready! Screen sharing the new Whiteboard layout now.', time: '11:31 AM' },
+    { id: 1, sender: 'System', text: 'Huddle room active. You joined with Mic & Camera OFF.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
   ]);
   const [newMsg, setNewMsg] = useState('');
   const [actionItems, setActionItems] = useState([
-    { id: 1, title: 'Finalize mobile responsive design for Whiteboard', assignee: 'Sarah Jenkins', converted: false },
-    { id: 2, title: 'Verify WebRTC connection fallback on staging', assignee: 'Alex Rivera', converted: false },
+    { id: 1, title: 'Review sprint items and approve design specs', assignee: user?.name || 'You', converted: false },
   ]);
   const [newActionItemTitle, setNewActionItemTitle] = useState('');
 
-  // Simulated Workspace Participants
+  // Participants initialized to ONLY the current user (Host)
   const [participants, setParticipants] = useState([
     {
       id: user?.id || 'me',
@@ -77,48 +75,25 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
       role: 'Host',
       avatar: user?.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Host',
       isMe: true,
-      isMuted: false,
-      isVideoOff: false,
-      isSpeaking: true,
-    },
-    {
-      id: 'p-sarah',
-      name: 'Sarah Jenkins',
-      role: 'Product Designer',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-      isMe: false,
-      isMuted: false,
-      isVideoOff: false,
-      isSpeaking: false,
-    },
-    {
-      id: 'p-alex',
-      name: 'Alex Rivera',
-      role: 'Frontend Lead',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alex',
-      isMe: false,
       isMuted: true,
-      isVideoOff: false,
-      isSpeaking: false,
-    },
-    {
-      id: 'p-david',
-      name: 'David Chen',
-      role: 'Backend Eng',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
-      isMe: false,
-      isMuted: false,
       isVideoOff: true,
       isSpeaking: false,
     },
   ]);
 
-  // Initialize Media Devices (Camera / Microphone)
+  // Initialize Media Devices (Camera / Microphone) - Disabled by default upon join
   useEffect(() => {
     async function initMedia() {
       if (typeof window !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          // Disable tracks by default so camera & mic are OFF until user enables them
+          stream.getAudioTracks().forEach((track) => {
+            track.enabled = false;
+          });
+          stream.getVideoTracks().forEach((track) => {
+            track.enabled = false;
+          });
           setLocalStream(stream);
           if (localVideoRef.current) {
             localVideoRef.current.srcObject = stream;
@@ -137,30 +112,51 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
     };
   }, []);
 
-  // Handle Mute Mic toggle
-  const toggleMute = () => {
+  // Handle Mute Mic toggle (Turn Audio ON / OFF)
+  const toggleMute = async () => {
+    const nextMuteState = !isMuted;
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => {
-        track.enabled = !track.enabled;
+        track.enabled = !nextMuteState;
       });
     }
-    setIsMuted((prev) => !prev);
+    setIsMuted(nextMuteState);
     setParticipants((prev) =>
-      prev.map((p) => (p.isMe ? { ...p, isMuted: !isMuted } : p))
+      prev.map((p) => (p.isMe ? { ...p, isMuted: nextMuteState } : p))
     );
   };
 
-  // Handle Video On/Off toggle
-  const toggleVideo = () => {
+  // Handle Video On/Off toggle (Turn Camera ON / OFF)
+  const toggleVideo = async () => {
+    const nextVideoOffState = !isVideoOff;
     if (localStream) {
       localStream.getVideoTracks().forEach((track) => {
-        track.enabled = !track.enabled;
+        track.enabled = !nextVideoOffState;
       });
     }
-    setIsVideoOff((prev) => !prev);
+    setIsVideoOff(nextVideoOffState);
     setParticipants((prev) =>
-      prev.map((p) => (p.isMe ? { ...p, isVideoOff: !isVideoOff } : p))
+      prev.map((p) => (p.isMe ? { ...p, isVideoOff: nextVideoOffState } : p))
     );
+  };
+
+  // Teammate join simulator helper
+  const simulateTeammateJoin = (name, role, avatarSeed) => {
+    const newId = `p-${Date.now()}`;
+    if (participants.some((p) => p.name === name)) return;
+    setParticipants((prev) => [
+      ...prev,
+      {
+        id: newId,
+        name,
+        role,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
+        isMe: false,
+        isMuted: false,
+        isVideoOff: false,
+        isSpeaking: false,
+      },
+    ]);
   };
 
   // Handle Screen Share toggle
@@ -379,6 +375,44 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
                 </div>
               </div>
             ))}
+
+            {/* Waiting for Teammates Card (Shown when only Host is in the room) */}
+            {participants.length === 1 && (
+              <div className="bg-slate-900/60 rounded-2xl border border-dashed border-slate-800 p-6 aspect-video flex flex-col items-center justify-center text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center">
+                  <Users className="w-6 h-6 animate-pulse" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-200">Waiting for teammates to join...</h4>
+                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs">
+                    Live call notifications have been broadcasted to your workspace team.
+                  </p>
+                </div>
+
+                {/* Quick Join Simulation for Testing */}
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+                  <span className="text-[10px] font-mono text-slate-500 w-full block">Quick Invite Teammate:</span>
+                  <button
+                    onClick={() => simulateTeammateJoin('Sarah Jenkins', 'Product Designer', 'Sarah')}
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition cursor-pointer"
+                  >
+                    + Sarah Jenkins
+                  </button>
+                  <button
+                    onClick={() => simulateTeammateJoin('Alex Rivera', 'Frontend Lead', 'Alex')}
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition cursor-pointer"
+                  >
+                    + Alex Rivera
+                  </button>
+                  <button
+                    onClick={() => simulateTeammateJoin('David Chen', 'Backend Eng', 'David')}
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition cursor-pointer"
+                  >
+                    + David Chen
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : activeTab === 'chat' ? (
           /* Live Huddle Meeting Chat */
