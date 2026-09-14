@@ -22,16 +22,34 @@ import {
   Pin,
   X,
   Share2,
+  Calendar,
+  Clock,
 } from 'lucide-react';
 import { useWorkspace } from '../layout/AppShell';
 
 export default function HuddleRoom({ project = null, onMinimize = null, onLeave = null }) {
-  const { user, activeWorkspace } = useWorkspace();
+  const { user, activeWorkspace, openScheduleMeeting } = useWorkspace();
 
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [activeTab, setActiveTab] = useState('grid'); // 'grid' | 'chat' | 'notes'
+  const [activeTab, setActiveTab] = useState('grid'); // 'grid' | 'chat' | 'notes' | 'upcoming'
+  const [scheduledMeetings, setScheduledMeetings] = useState([]);
+
+  // Load scheduled huddles
+  useEffect(() => {
+    if (activeWorkspace) {
+      const storageKey = `taskflow_scheduled_huddles_${activeWorkspace.id}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          setScheduledMeetings(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading scheduled huddles:', e);
+        }
+      }
+    }
+  }, [activeWorkspace?.id]);
 
   // WebRTC Local Stream Refs
   const localVideoRef = useRef(null);
@@ -270,6 +288,14 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
             >
               AI Action Notes
             </button>
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition cursor-pointer ${
+                activeTab === 'upcoming' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Upcoming ({scheduledMeetings.length})
+            </button>
           </div>
 
           {onMinimize && (
@@ -385,7 +411,7 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
               </button>
             </form>
           </div>
-        ) : (
+        ) : activeTab === 'notes' ? (
           /* AI Action Items Notes Tab */
           <div className="flex-1 p-5 overflow-y-auto max-w-2xl mx-auto w-full space-y-4">
             <div className="flex items-center justify-between">
@@ -440,6 +466,71 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        ) : (
+          /* Upcoming Scheduled Meetings View */
+          <div className="flex-1 p-5 overflow-y-auto max-w-2xl mx-auto w-full space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                <Calendar className="w-4 h-4" />
+                <span>Scheduled Future Huddles</span>
+              </div>
+              <button
+                onClick={openScheduleMeeting}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Schedule New</span>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {scheduledMeetings.length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-500 italic bg-slate-900/60 border border-slate-800 rounded-xl">
+                  No scheduled huddles yet. Click Schedule New to plan future calls!
+                </div>
+              ) : (
+                scheduledMeetings.map((mtg) => (
+                  <div
+                    key={mtg.id}
+                    className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-100">{mtg.title}</h4>
+                        {mtg.projectName && (
+                          <span className="text-[10px] font-mono text-amber-400">Project: {mtg.projectName}</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        {mtg.duration}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/80">
+                      <div className="flex items-center gap-3 text-[11px] font-mono">
+                        <span className="flex items-center gap-1 text-slate-300">
+                          <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                          {mtg.date}
+                        </span>
+                        <span className="flex items-center gap-1 text-slate-300">
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                          {mtg.time}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveTab('grid')}
+                        className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer"
+                      >
+                        <Zap className="w-3 h-3" />
+                        <span>Launch Huddle</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}

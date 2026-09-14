@@ -14,6 +14,8 @@ import GanttTimelineModal from '../modals/GanttTimelineModal';
 import WhiteboardModal from '../modals/WhiteboardModal';
 import WorkloadModal from '../modals/WorkloadModal';
 import HuddleModal from '../modals/HuddleModal';
+import ScheduleMeetingModal from '../modals/ScheduleMeetingModal';
+import HuddleInviteToast from '../huddle/HuddleInviteToast';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
 export const WorkspaceContext = createContext(null);
@@ -41,6 +43,8 @@ export default function AppShell({ children }) {
   const [isHuddleActive, setIsHuddleActive] = useState(false);
   const [isHuddleMinimized, setIsHuddleMinimized] = useState(false);
   const [huddleProject, setHuddleProject] = useState(null);
+  const [huddleNotice, setHuddleNotice] = useState(null);
+  const [isScheduleMeetingOpen, setIsScheduleMeetingOpen] = useState(false);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -170,12 +174,32 @@ export default function AppShell({ children }) {
         openGanttTimeline: () => setIsGanttOpen(true),
         openWhiteboard: () => setIsWhiteboardOpen(true),
         openWorkloadPlanner: () => setIsWorkloadOpen(true),
+        openScheduleMeeting: () => setIsScheduleMeetingOpen(true),
         isHuddleActive,
         isHuddleMinimized,
         startHuddle: (proj = null) => {
           setHuddleProject(proj);
           setIsHuddleActive(true);
           setIsHuddleMinimized(false);
+
+          // Broadcast notification to workspace teammates
+          const notice = {
+            hostName: user?.name || 'Teammate',
+            projectName: proj?.name || null,
+          };
+          setHuddleNotice(notice);
+
+          // Create notification via API
+          fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: `🎙️ ${user?.name || 'Teammate'} started a Live Huddle`,
+              message: proj ? `Live meeting in ${proj.name}. Click to join!` : 'Live workspace huddle call. Click to join!',
+              type: 'HUDDLE',
+              link: `/dashboard?huddle=true`,
+            }),
+          }).catch(console.error);
         },
         minimizeHuddle: () => setIsHuddleMinimized(true),
         maximizeHuddle: () => setIsHuddleMinimized(false),
@@ -287,6 +311,17 @@ export default function AppShell({ children }) {
           />
         )}
 
+        {/* Schedule Future Meeting Modal */}
+        {isScheduleMeetingOpen && (
+          <ScheduleMeetingModal
+            isOpen={isScheduleMeetingOpen}
+            onClose={() => setIsScheduleMeetingOpen(false)}
+            onSuccess={() => {
+              router.refresh();
+            }}
+          />
+        )}
+
         {/* Team Audio/Video Huddle & Meeting Room Modal / Dock */}
         {isHuddleActive && (
           <HuddleModal
@@ -299,6 +334,19 @@ export default function AppShell({ children }) {
               setIsHuddleActive(false);
               setIsHuddleMinimized(false);
             }}
+          />
+        )}
+
+        {/* Live Teammate Huddle Notification Toast Banner */}
+        {huddleNotice && !isHuddleActive && (
+          <HuddleInviteToast
+            huddleNotice={huddleNotice}
+            onJoin={() => {
+              setIsHuddleActive(true);
+              setIsHuddleMinimized(false);
+              setHuddleNotice(null);
+            }}
+            onDismiss={() => setHuddleNotice(null)}
           />
         )}
       </RealtimeContext.Provider>
