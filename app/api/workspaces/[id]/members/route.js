@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { generateSecureToken, hashToken } from '@/lib/security';
+import { requireWorkspaceAdmin } from '@/lib/permissions';
 
 export async function GET(req, { params }) {
   try {
@@ -57,66 +59,91 @@ export async function POST(req, { params }) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { id: workspaceId } = await params;
-    const { email, role = 'MEMBER' } = await req.json();
+    const body = await req.json();
+    const { email, role = 'MEMBER' } = body;
 
-    const currentMember = await db.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: user.id } },
-    });
+    if (!email || !email.includes('@')) {
+      return NextResponse.json({ error: 'Valid email address required' }, { status: 400 });
+    }
 
-    if (!currentMember || (currentMember.role !== 'OWNER' && currentMember.role !== 'ADMIN')) {
+    const adminCheck = await requireWorkspaceAdmin(workspaceId, user.id);
+    if (!adminCheck) {
       return NextResponse.json({ error: 'Only owners and admins can invite members' }, { status: 403 });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
     const targetUser = await db.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: normalizedEmail },
     });
 
-    if (!targetUser) {
-      // Create invitation token entry
-      const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      const invitation = await db.invitation.create({
+    if (targetUser) {
+      const existingMember = await db.workspaceMember.findUnique({
+        where: { workspaceId_userId: { workspaceId, userId: targetUser.id } },
+      });
+
+      if (existingMember) {
+        return NextResponse.json({ error: 'User is already a member of this workspace' }, { status: 400 });
+      }
+
+      const newMember = await db.workspaceMember.create({
         data: {
           workspaceId,
-          email: email.toLowerCase().trim(),
-          role,
-          token,
+          userId: targetUser.id,
+          role: role === 'ADMIN' ? 'ADMIN' : 'MEMBER',
+        },
+        include: {
+          user: { select: { id: true, name: true, email: true, avatarUrl: true } },
         },
       });
-      return NextResponse.json({ message: 'Invitation sent successfully', invitation }, { status: 201 });
+
+      const ws = await db.workspace.findUnique({ where: { id: workspaceId } });
+      await db.notification.create({
+        data: {
+          userId: targetUser.id,
+          type: 'INVITATION',
+          title: 'Joined Workspace',
+          message: `You were added to ${ws?.name || 'the workspace'} as a ${role}`,
+          linkUrl: `/dashboard?workspace=${workspaceId}`,
+        },
+      });
+
+      return NextResponse.json({ member: newMember }, { status: 201 });
     }
 
-    const existingMember = await db.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: targetUser.id } },
-    });
+    // Cryptographically secure invitation token & hash
+    const rawToken = generateSecureToken(32);
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    if (existingMember) {
-      return NextResponse.json({ error: 'User is already a member of this workspace' }, { status: 400 });
-    }
-
-    const newMember = await db.workspaceMember.create({
+    const invitation = await db.invitation.create({
       data: {
         workspaceId,
-        userId: targetUser.id,
-        role,
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
-      },
-    });
-
-    // Notify target user
-    const ws = await db.workspace.findUnique({ where: { id: workspaceId } });
-    await db.notification.create({
-      data: {
-        userId: targetUser.id,
-        type: 'INVITATION',
-        title: 'Joined Workspace',
-        message: `You were added to ${ws.name} as a ${role}`,
-        linkUrl: `/dashboard?workspace=${workspaceId}`,
+        email: normalizedEmail,
+        role: role === 'ADMIN' ? 'ADMIN' : 'MEMBER',
+        token: rawToken,
+        tokenHash,
+        expiresAt,
+        status: 'PENDING',
       },
     });
 
-    return NextResponse.json({ member: newMember }, { status: 201 });
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const inviteUrl = `${origin}/invite/${rawToken}`;
+
+    return NextResponse.json(
+      {
+        message: 'Invitation created successfully',
+        invitation: {
+          id: invitation.id,
+          email: invitation.email,
+          role: invitation.role,
+          token: rawToken,
+          inviteUrl,
+          expiresAt: invitation.expiresAt,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Invite member error:', error);
     return NextResponse.json({ error: 'Failed to invite member' }, { status: 500 });
@@ -131,17 +158,14 @@ export async function PATCH(req, { params }) {
     const { id: workspaceId } = await params;
     const { userId, role } = await req.json();
 
-    const currentMember = await db.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: user.id } },
-    });
-
-    if (!currentMember || (currentMember.role !== 'OWNER' && currentMember.role !== 'ADMIN')) {
+    const adminCheck = await requireWorkspaceAdmin(workspaceId, user.id);
+    if (!adminCheck) {
       return NextResponse.json({ error: 'Only owners and admins can update member roles' }, { status: 403 });
     }
 
     const updated = await db.workspaceMember.update({
       where: { workspaceId_userId: { workspaceId, userId } },
-      data: { role },
+      data: { role: role === 'ADMIN' ? 'ADMIN' : 'MEMBER' },
     });
 
     return NextResponse.json({ member: updated });

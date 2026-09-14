@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
+
+function sanitizeInput(str) {
+  if (!str || typeof str !== 'string') return '';
+  // Strip control characters and dangerous prompt injection tags
+  return str
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+    .replace(/(system:|user:|assistant:|\[INST\]|\[\/INST\])/gi, '')
+    .slice(0, 2000);
+}
 
 export async function POST(req) {
   try {
@@ -9,19 +20,37 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { action, title, description, workspaceId } = await req.json();
+    const ip = getClientIp(req);
+    const limiter = rateLimit({ ip: `ai_${ip}`, limit: 20, windowMs: 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json({ error: 'AI Assistant rate limit exceeded. Please wait a moment.' }, { status: 429 });
+    }
+
+    const body = await req.json();
+    const { action, title, description, workspaceId } = body;
+
+    if (workspaceId) {
+      const member = await requireWorkspaceMember(workspaceId, user.id);
+      if (!member) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (action === 'BREAKDOWN') {
-      if (!title || title.trim() === '') {
+      const sanitizedTitle = sanitizeInput(title);
+      const sanitizedDesc = sanitizeInput(description);
+
+      if (!sanitizedTitle) {
         return NextResponse.json({ error: 'Title is required for task breakdown' }, { status: 400 });
       }
 
-      // If Gemini API Key exists, try calling Gemini API
       if (apiKey) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
         try {
-          const prompt = `You are a project management assistant. Break down the following task into 3 to 5 clear, actionable subtasks. Return ONLY a valid JSON array of strings representing the subtask titles, with no markdown codeblocks or extra text.\nTask Title: "${title}"\nDescription: "${description || 'None'}"`;
+          const prompt = `You are a project management assistant. Break down the following task into 3 to 5 clear, actionable subtasks. Return ONLY a valid JSON array of strings representing the subtask titles, with no markdown codeblocks or extra text.\nTask Title: "${sanitizedTitle}"\nDescription: "${sanitizedDesc || 'None'}"`;
 
           const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
@@ -31,6 +60,7 @@ export async function POST(req) {
               body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
               }),
+              signal: controller.signal,
             }
           );
 
@@ -45,11 +75,12 @@ export async function POST(req) {
           }
         } catch (apiErr) {
           console.warn('Gemini API call failed, falling back to smart breakdown engine:', apiErr);
+        } finally {
+          clearTimeout(timeoutId);
         }
       }
 
-      // Smart Contextual Breakdown Engine (Offline / Fallback)
-      const subtasks = generateSmartSubtasks(title, description);
+      const subtasks = generateSmartSubtasks(sanitizedTitle, sanitizedDesc);
       return NextResponse.json({ subtasks });
     }
 
@@ -71,12 +102,14 @@ export async function POST(req) {
       const todo = userTasks.filter((t) => t.status === 'TODO');
 
       if (apiKey) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         try {
           const prompt = `You are a team lead writing a daily standup update for ${user.name}.
 Given these user tasks:
-Completed tasks: ${completed.map((t) => t.title).join(', ') || 'None'}
-In progress tasks: ${inProgress.map((t) => t.title).join(', ') || 'None'}
-To-do tasks: ${todo.map((t) => t.title).join(', ') || 'None'}
+Completed tasks: ${completed.map((t) => sanitizeInput(t.title)).join(', ') || 'None'}
+In progress tasks: ${inProgress.map((t) => sanitizeInput(t.title)).join(', ') || 'None'}
+To-do tasks: ${todo.map((t) => sanitizeInput(t.title)).join(', ') || 'None'}
 
 Format a professional 3-bullet Daily Standup report with section headers:
 🟢 What was accomplished
@@ -93,6 +126,7 @@ Keep it concise and ready for Slack/Teams.`;
               body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
               }),
+              signal: controller.signal,
             }
           );
 
@@ -105,10 +139,11 @@ Keep it concise and ready for Slack/Teams.`;
           }
         } catch (apiErr) {
           console.warn('Gemini API call failed for standup, falling back:', apiErr);
+        } finally {
+          clearTimeout(timeoutId);
         }
       }
 
-      // Smart Standup Generator (Offline / Fallback)
       const standup = generateSmartStandup(user.name, completed, inProgress, todo);
       return NextResponse.json({ standup });
     }
@@ -120,7 +155,6 @@ Keep it concise and ready for Slack/Teams.`;
   }
 }
 
-// ── Smart Rule-Based Subtask Breakdown Engine ─────────────────────────────────
 function generateSmartSubtasks(title, description = '') {
   const t = title.toLowerCase();
   const subtasks = [];
@@ -137,7 +171,7 @@ function generateSmartSubtasks(title, description = '') {
     subtasks.push('Write integration tests & verify API response payloads');
   } else if (t.includes('ui') || t.includes('page') || t.includes('component') || t.includes('design')) {
     subtasks.push('Draft component structure & layout wireframe');
-    subtasks.push('Implement responsive Tailwind CSS styling & dark mode support');
+    subtasks.push('Implement responsive styling & dark mode support');
     subtasks.push('Wire interactive state, handlers & loading spinners');
     subtasks.push('Conduct cross-browser & mobile viewport testing');
   } else if (t.includes('bug') || t.includes('fix') || t.includes('error') || t.includes('issue')) {
@@ -155,7 +189,6 @@ function generateSmartSubtasks(title, description = '') {
   return subtasks;
 }
 
-// ── Smart Standup Generator Engine ───────────────────────────────────────────
 function generateSmartStandup(userName, completed, inProgress, todo) {
   let text = `🚀 **Daily Standup Summary — ${userName}**\n\n`;
 

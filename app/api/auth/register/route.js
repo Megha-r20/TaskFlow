@@ -1,27 +1,25 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword, signToken, TOKEN_COOKIE_NAME } from '@/lib/auth';
+import { registerSchema, validateBody } from '@/lib/validations';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req) {
   try {
-    const { name, email, password, workspaceName } = await req.json();
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
+    const ip = getClientIp(req);
+    const limiter = rateLimit({ ip: `register_${ip}`, limit: 10, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json({ error: 'Too many registration attempts. Please try again later.' }, { status: 429 });
     }
 
-    if (name.trim().length > 100) {
-      return NextResponse.json({ error: 'Name must be 100 characters or less' }, { status: 400 });
+    const body = await req.json();
+    const { error, data } = validateBody(registerSchema, body);
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return NextResponse.json({ error: 'Please provide a valid email address' }, { status: 400 });
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters long' }, { status: 400 });
-    }
+    const { name, email, password } = data;
+    const workspaceName = body.workspaceName;
 
     const existingUser = await db.user.findUnique({
       where: { email: email.toLowerCase().trim() },
@@ -63,7 +61,6 @@ export async function POST(req) {
         },
       });
 
-      // Default labels
       await tx.label.createMany({
         data: [
           { workspaceId: newWorkspace.id, name: 'Frontend', color: '#3b82f6' },

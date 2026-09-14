@@ -1,17 +1,25 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { comparePassword, signToken, TOKEN_COOKIE_NAME } from '@/lib/auth';
+import { loginSchema, validateBody } from '@/lib/validations';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    const ip = getClientIp(req);
+    const limiter = rateLimit({ ip: `login_${ip}`, limit: 10, windowMs: 15 * 60 * 1000 });
+    if (!limiter.success) {
+      return NextResponse.json({ error: 'Too many login attempts. Please try again later.' }, { status: 429 });
+    }
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    const body = await req.json();
+    const { error, data } = validateBody(loginSchema, body);
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
     }
 
     const user = await db.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: data.email.toLowerCase().trim() },
       include: {
         workspaceMembers: {
           include: {
@@ -25,7 +33,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    const isMatch = await comparePassword(password, user.passwordHash);
+    const isMatch = await comparePassword(data.password, user.passwordHash);
     if (!isMatch) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
@@ -54,7 +62,7 @@ export async function POST(req) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

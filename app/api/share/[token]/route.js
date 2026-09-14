@@ -1,25 +1,48 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { hashToken } from '@/lib/security';
 
 export async function GET(request, { params }) {
   try {
     const { token } = await params;
     if (!token) return NextResponse.json({ error: 'Token required' }, { status: 400 });
 
-    // Fetch active project data for client read-only display
-    const project = await db.project.findFirst({
+    const hashed = hashToken(token);
+
+    // Look up share link by hash or token
+    const shareLink = await db.shareLink.findFirst({
+      where: {
+        OR: [{ tokenHash: hashed }, { token: token }],
+      },
       include: {
-        tasks: {
+        project: {
           include: {
-            assignee: true,
+            tasks: {
+              include: {
+                assignee: {
+                  select: { id: true, name: true, avatarUrl: true },
+                },
+              },
+              orderBy: { order: 'asc' },
+            },
           },
         },
       },
     });
 
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found or link expired' }, { status: 404 });
+    if (!shareLink) {
+      return NextResponse.json({ error: 'Invalid share link' }, { status: 404 });
     }
+
+    if (shareLink.revokedAt) {
+      return NextResponse.json({ error: 'This share link has been revoked' }, { status: 410 });
+    }
+
+    if (shareLink.expiresAt && new Date() > new Date(shareLink.expiresAt)) {
+      return NextResponse.json({ error: 'This share link has expired' }, { status: 410 });
+    }
+
+    const project = shareLink.project;
 
     return NextResponse.json({
       project: {
@@ -29,8 +52,18 @@ export async function GET(request, { params }) {
         description: project.description,
         status: project.status,
         color: project.color,
-        tasks: project.tasks || [],
+        createdAt: project.createdAt.toISOString(),
+        tasks: project.tasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          status: t.status,
+          priority: t.priority,
+          dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+          assignee: t.assignee ? { name: t.assignee.name, avatarUrl: t.assignee.avatarUrl } : null,
+        })),
       },
+      readOnly: true,
     });
   } catch (error) {
     console.error('Fetch public share project error:', error);

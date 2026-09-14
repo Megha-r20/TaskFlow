@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { requireWorkspaceMember } from '@/lib/permissions';
+import { createProjectSchema, validateBody } from '@/lib/validations';
 
 export async function GET(req) {
   try {
@@ -12,6 +14,11 @@ export async function GET(req) {
 
     if (!workspaceId) {
       return NextResponse.json({ error: 'Workspace ID parameter is required' }, { status: 400 });
+    }
+
+    const member = await requireWorkspaceMember(workspaceId, user.id);
+    if (!member) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const projects = await db.project.findMany({
@@ -76,31 +83,28 @@ export async function POST(req) {
     const user = await getSession();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { workspaceId, name, key, description, color = '#6366f1', status = 'ACTIVE' } = await req.json();
-
-    if (!workspaceId || !name || !key) {
-      return NextResponse.json({ error: 'Workspace ID, project name, and key are required' }, { status: 400 });
+    const body = await req.json();
+    const { error, data } = validateBody(createProjectSchema, body);
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
     }
 
-    const member = await db.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId: user.id } },
-    });
-
+    const member = await requireWorkspaceMember(data.workspaceId, user.id);
     if (!member) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const formattedKey = key.trim().toUpperCase().slice(0, 5);
+    const formattedKey = data.key.trim().toUpperCase().slice(0, 10);
 
     const project = await db.$transaction(async (tx) => {
       const p = await tx.project.create({
         data: {
-          workspaceId,
-          name: name.trim(),
+          workspaceId: data.workspaceId,
+          name: data.name.trim(),
           key: formattedKey,
-          description: description?.trim() || null,
-          color,
-          status,
+          description: data.description?.trim() || null,
+          color: data.color || '#6366f1',
+          status: 'ACTIVE',
         },
       });
 
@@ -114,11 +118,11 @@ export async function POST(req) {
 
       await tx.activityLog.create({
         data: {
-          workspaceId,
+          workspaceId: data.workspaceId,
           projectId: p.id,
           userId: user.id,
           action: 'CREATED_PROJECT',
-          details: `Created new project "${name.trim()}" (${formattedKey})`,
+          details: `Created new project "${data.name.trim()}" (${formattedKey})`,
         },
       });
 

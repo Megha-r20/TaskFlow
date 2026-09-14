@@ -17,14 +17,19 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  ownedWorkspaces   Workspace[]       @relation("WorkspaceOwner")
-  workspaceMembers  WorkspaceMember[]
-  projectMembers    ProjectMember[]
-  assignedTasks     Task[]            @relation("TaskAssignee")
-  createdTasks      Task[]            @relation("TaskCreator")
-  comments          Comment[]
-  notifications     Notification[]
-  activityLogs      ActivityLog[]
+  ownedWorkspaces    Workspace[]          @relation("WorkspaceOwner")
+  workspaceMembers   WorkspaceMember[]
+  projectMembers     ProjectMember[]
+  assignedTasks      Task[]               @relation("TaskAssignee")
+  createdTasks       Task[]               @relation("TaskCreator")
+  comments           Comment[]
+  notifications      Notification[]
+  activityLogs       ActivityLog[]
+  docs               Doc[]                @relation("DocAuthor")
+  goals              Goal[]               @relation("GoalOwner")
+  timeEntries        TimeEntry[]
+  shareLinks         ShareLink[]          @relation("ShareLinkCreator")
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -45,7 +50,12 @@ model Workspace {
   labels          Label[]
   activityLogs    ActivityLog[]
   automationRules AutomationRule[]
+  docs            Doc[]
+  goals           Goal[]
+  timeEntries     TimeEntry[]
+  webhookConfigs  WebhookConfig[]
 
+  @@index([ownerId])
   @@map("workspaces")
 }
 
@@ -59,6 +69,8 @@ model WorkspaceMember {
   joinedAt    DateTime  @default(now())
 
   @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
   @@map("workspace_members")
 }
 
@@ -77,8 +89,10 @@ model Project {
   members      ProjectMember[]
   tasks        Task[]
   activityLogs ActivityLog[]
+  shareLinks   ShareLink[]
 
   @@unique([workspaceId, key])
+  @@index([workspaceId])
   @@map("projects")
 }
 
@@ -92,6 +106,8 @@ model ProjectMember {
   joinedAt  DateTime @default(now())
 
   @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
   @@map("project_members")
 }
 
@@ -115,7 +131,11 @@ model Task {
   comments     Comment[]
   labels       TaskLabel[]
   activityLogs ActivityLog[]
+  timeEntries  TimeEntry[]
 
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([creatorId])
   @@map("tasks")
 }
 
@@ -128,6 +148,7 @@ model Label {
   tasks       TaskLabel[]
 
   @@unique([workspaceId, name])
+  @@index([workspaceId])
   @@map("labels")
 }
 
@@ -150,6 +171,7 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
 
+  @@index([taskId])
   @@map("comments")
 }
 
@@ -164,6 +186,7 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
+  @@index([userId])
   @@map("notifications")
 }
 
@@ -181,6 +204,7 @@ model ActivityLog {
   details     String
   createdAt   DateTime  @default(now())
 
+  @@index([workspaceId])
   @@map("activity_logs")
 }
 
@@ -191,23 +215,143 @@ model Invitation {
   email       String
   role        String    @default("MEMBER")
   token       String    @unique
+  tokenHash   String?
   status      String    @default("PENDING")
+  expiresAt   DateTime?
+  acceptedAt  DateTime?
   createdAt   DateTime  @default(now())
 
+  @@index([workspaceId])
+  @@index([email])
   @@map("invitations")
 }
 
 model AutomationRule {
+  id           String    @id @default(uuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name         String
+  triggerType  String    
+  triggerValue String   
+  actionType   String    
+  actionValue  String    
+  enabled      Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@map("automation_rules")
+}
+
+model Doc {
   id          String    @id @default(uuid())
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  name        String
-  triggerType String    // e.g. "STATUS_CHANGE"
-  triggerValue String   // e.g. "REVIEW", "DONE", "IN_PROGRESS"
-  actionType  String    // e.g. "AUTO_ASSIGN", "ADD_COMMENT", "CREATE_LOG"
-  actionValue String    // e.g. target userId or tag name
-  enabled     Boolean   @default(true)
+  title       String
+  category    String    @default("General")
+  content     String
+  authorId    String
+  author      User      @relation("DocAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
+  @@map("docs")
+}
+
+model Goal {
+  id              String      @id @default(uuid())
+  workspaceId     String
+  workspace       Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title           String
+  quarter         String      @default("Q3 2026")
+  ownerId         String
+  owner           User        @relation("GoalOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  targetProgress  Float       @default(100)
+  currentProgress Float       @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  keyResults      KeyResult[]
+
+  @@index([workspaceId])
+  @@map("goals")
+}
+
+model KeyResult {
+  id      String @id @default(uuid())
+  goalId  String
+  goal    Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title   String
+  current Float  @default(0)
+  target  Float  @default(100)
+  unit    String @default("%")
+
+  @@index([goalId])
+  @@map("key_results")
+}
+
+model TimeEntry {
+  id              String    @id @default(uuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  taskTitle       String
+  projectName     String
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  durationMinutes Int
+  hourlyRate      Float     @default(75)
+  billable        Boolean   @default(true)
+  date            String
+  createdAt       DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@map("time_entries")
+}
+
+model ShareLink {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  token       String    @unique
+  tokenHash   String
+  createdById String
+  createdBy   User      @relation("ShareLinkCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  expiresAt   DateTime?
+  revokedAt   DateTime?
   createdAt   DateTime  @default(now())
 
-  @@map("automation_rules")
+  @@index([projectId])
+  @@index([tokenHash])
+  @@map("share_links")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+model WebhookConfig {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  slackUrl    String?
+  discordUrl  String?
+  events      String    @default("ALL")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId])
+  @@map("webhook_configs")
 }
