@@ -14,6 +14,7 @@ import {
   Calendar,
   Sparkles,
   Radio,
+  Link2,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
