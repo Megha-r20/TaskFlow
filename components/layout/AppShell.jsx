@@ -15,6 +15,9 @@ import WhiteboardModal from '../modals/WhiteboardModal';
 import WorkloadModal from '../modals/WorkloadModal';
 import HuddleModal from '../modals/HuddleModal';
 import ScheduleMeetingModal from '../modals/ScheduleMeetingModal';
+import ShareProjectModal from '../modals/ShareProjectModal';
+import ImportExportModal from '../modals/ImportExportModal';
+import ToastContainer from '../notifications/ToastContainer';
 import HuddleInviteToast from '../huddle/HuddleInviteToast';
 import { useRealtimeEvents } from '@/lib/useRealtimeEvents';
 
@@ -45,6 +48,9 @@ export default function AppShell({ children }) {
   const [huddleProject, setHuddleProject] = useState(null);
   const [huddleNotice, setHuddleNotice] = useState(null);
   const [isScheduleMeetingOpen, setIsScheduleMeetingOpen] = useState(false);
+  const [isImportExportOpen, setIsImportExportOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareProject, setShareProject] = useState(null);
   const [focusTask, setFocusTask] = useState(null);
   const [createTaskDefaultProjId, setCreateTaskDefaultProjId] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -175,6 +181,11 @@ export default function AppShell({ children }) {
         openWhiteboard: () => setIsWhiteboardOpen(true),
         openWorkloadPlanner: () => setIsWorkloadOpen(true),
         openScheduleMeeting: () => setIsScheduleMeetingOpen(true),
+        openImportExport: () => setIsImportExportOpen(true),
+        openShareProject: (proj) => {
+          setShareProject(proj);
+          setIsShareModalOpen(true);
+        },
         isHuddleActive,
         isHuddleMinimized,
         startHuddle: (proj = null) => {
@@ -336,6 +347,27 @@ export default function AppShell({ children }) {
             }}
           />
         )}
+
+        {/* Client Read-Only Share Modal */}
+        {isShareModalOpen && (
+          <ShareProjectModal
+            isOpen={isShareModalOpen}
+            project={shareProject}
+            onClose={() => setIsShareModalOpen(false)}
+          />
+        )}
+
+        {/* Data Import / Export & Backup Modal */}
+        {isImportExportOpen && (
+          <ImportExportModal
+            isOpen={isImportExportOpen}
+            activeWorkspace={activeWorkspace}
+            onClose={() => setIsImportExportOpen(false)}
+          />
+        )}
+
+        {/* Global Real-Time Animated Toast Container */}
+        <ToastContainer />
 
         {/* Live Teammate Huddle Notification Toast Banner */}
         {huddleNotice && !isHuddleActive && (

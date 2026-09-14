@@ -29,7 +29,7 @@ export default function ProjectDetailPage({ params }) {
   const searchParams = useSearchParams();
   const initialTaskId = searchParams.get('task');
 
-  const { activeWorkspace, startHuddle } = useWorkspace();
+  const { activeWorkspace, startHuddle, openShareProject } = useWorkspace();
   const { registerRealtimeHandler } = useRealtime() || {};
 
   const [project, setProject] = useState(null);
@@ -214,6 +214,16 @@ export default function ProjectDetailPage({ params }) {
           </div>
 
           <div className="flex items-center gap-2 self-start md:self-auto">
+            {/* Share Client Link Button */}
+            <button
+              onClick={() => openShareProject(project)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[var(--tf-sidebar)] hover:bg-[var(--tf-hover)] border border-[var(--tf-border)] text-[var(--tf-text-main)] font-semibold text-xs transition shadow-xs cursor-pointer"
+              title="Share Read-Only Client Link"
+            >
+              <Link2 className="w-4 h-4 text-amber-500" />
+              <span>Share Client Link</span>
+            </button>
+
             {/* Export Dropdown */}
             <div className="relative">
               <button
