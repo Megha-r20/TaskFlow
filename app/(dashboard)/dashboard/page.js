@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Plus,
   Sparkles,
+  Radio,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 import { useRealtime } from '@/components/layout/AppShell';
@@ -24,14 +25,30 @@ export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
+  const [scheduledMeetings, setScheduledMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const { startHuddle } = useWorkspace();
 
   useEffect(() => {
     if (activeWorkspace) {
       fetchDashboardStats();
+      loadScheduledMeetings();
     }
   }, [activeWorkspace?.id]);
+
+  const loadScheduledMeetings = () => {
+    if (activeWorkspace && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`taskflow_scheduled_huddles_${activeWorkspace.id}`);
+      if (saved) {
+        try {
+          setScheduledMeetings(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error parsing scheduled huddles:', e);
+        }
+      }
+    }
+  };
 
   // Refresh dashboard stats when realtime task events arrive
   useEffect(() => {
@@ -224,6 +241,61 @@ export default function DashboardPage() {
                 <span className="text-[10px] text-[var(--tf-text-subtle)] font-mono block">DONE</span>
                 <span className="text-xs font-mono font-semibold text-emerald-500">{stats?.completedTasks || 0}</span>
               </div>
+            </div>
+          </div>
+
+          {/* Scheduled Huddles & Meetings Widget */}
+          <div className="p-5 rounded-lg bg-[var(--tf-card)] border border-[var(--tf-border)] space-y-3.5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-mono font-semibold text-[var(--tf-text-main)] uppercase tracking-wider flex items-center gap-2">
+                <Radio className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                <span>Scheduled Huddles & Meetings ({scheduledMeetings.length})</span>
+              </h3>
+              <button
+                onClick={() => startHuddle()}
+                className="text-[11px] font-mono font-bold text-amber-500 hover:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Launch Huddle</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {scheduledMeetings.length === 0 ? (
+                <div className="py-6 text-center text-xs text-[var(--tf-text-subtle)] italic">
+                  No upcoming scheduled huddles. Click "Schedule Huddle & Meeting" in the sidebar to schedule one!
+                </div>
+              ) : (
+                scheduledMeetings.map((mtg) => (
+                  <div
+                    key={mtg.id}
+                    className="flex items-center justify-between p-3 rounded bg-[var(--tf-sidebar)] border border-[var(--tf-border)] transition"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[var(--tf-text-main)]">{mtg.title}</span>
+                        {mtg.projectName && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            {mtg.projectName}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] font-mono text-[var(--tf-text-muted)]">
+                        <span>📅 {mtg.date}</span>
+                        <span>⏰ {mtg.time}</span>
+                        <span>⏱️ {mtg.duration}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => startHuddle()}
+                      className="px-3 py-1 text-xs font-bold rounded bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer"
+                    >
+                      Join / Launch
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
