@@ -13,6 +13,8 @@ import {
   Check,
   Sliders,
   Globe,
+  Users,
+  ArrowRight,
 } from 'lucide-react';
 import { useWorkspace } from '@/components/layout/AppShell';
 
@@ -393,6 +395,27 @@ export default function SettingsPage() {
             <p className="text-xs text-[var(--tf-text-muted)] mt-0.5">
               Review editing and administrative capabilities enabled for your current role (<strong className="text-[var(--tf-text-main)]">{role}</strong>).
             </p>
+          </div>
+          {/* Who can choose roles info banner */}
+          <div className="p-4 rounded-xl bg-[var(--tf-sidebar)] border border-[var(--tf-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-bold text-[var(--tf-text-main)]">
+                <Users className="w-4 h-4 text-amber-500" />
+                <span>Who chooses and changes user roles?</span>
+              </div>
+              <p className="text-xs text-[var(--tf-text-muted)]">
+                Workspace <strong>Owners</strong> and <strong>Admins</strong> can select roles when inviting new teammates or change existing member roles (Admin vs Member) in Team Members.
+              </p>
+            </div>
+            {isOwnerOrAdmin && (
+              <a
+                href="/members"
+                className="px-3.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 text-xs font-semibold transition shrink-0 self-start sm:self-auto flex items-center gap-1.5"
+              >
+                <span>Manage Roles & Invites</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
