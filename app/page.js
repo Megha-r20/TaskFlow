@@ -66,9 +66,11 @@ export default function IntroPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 font-bold text-base shadow-xs group-hover:scale-105 transition-transform">
-              📋
-            </div>
+            <img
+              src="/logo.png"
+              alt="TaskFlow Logo"
+              className="w-8 h-8 rounded-lg border border-amber-500/30 object-cover shadow-xs group-hover:scale-105 transition-transform"
+            />
             <div className="flex flex-col">
               <span className="text-base font-bold text-[var(--tf-text-main)] tracking-tight flex items-center gap-1.5">
                 TaskFlow

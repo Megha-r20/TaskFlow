@@ -68,9 +68,11 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="p-3.5 border-b border-[var(--tf-border)] space-y-3">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-7 h-7 rounded-lg bg-[var(--tf-card)] border border-[var(--tf-border)] flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform">
-                📋
-              </div>
+              <img
+                src="/logo.png"
+                alt="TaskFlow Logo"
+                className="w-7 h-7 rounded-lg border border-[var(--tf-border)] object-cover shadow-sm group-hover:scale-105 transition-transform"
+              />
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-[var(--tf-text-main)] tracking-tight flex items-center gap-1.5">
                   TaskFlow

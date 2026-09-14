@@ -85,7 +85,7 @@ export default function LoginPage() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10 text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-[var(--tf-border)] bg-[var(--tf-sidebar)] text-xs font-mono font-medium text-[var(--tf-text-muted)] mb-2 shadow-xs">
-          <span>📋</span>
+          <img src="/logo.png" alt="TaskFlow Logo" className="w-4 h-4 rounded object-cover" />
           <span>TaskFlow Workspace</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--tf-text-main)]">
