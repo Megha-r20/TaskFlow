@@ -25,6 +25,13 @@ const demoUsers = [
     workspaceRole: 'MEMBER',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
   },
+  {
+    email: 'elena@taskflow.dev',
+    name: 'Elena Rostova',
+    role: 'MEMBER',
+    workspaceRole: 'MEMBER',
+    avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+  },
 ];
 
 async function main() {

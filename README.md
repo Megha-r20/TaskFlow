@@ -88,9 +88,15 @@ DATABASE_URL="file:./dev.db"
 
 ### 4. Setup Database & Seed Data
 ```bash
+npx prisma generate
 npx prisma db push
 npm run seed
 ```
+
+> **Note**: To seed only the demo users without wiping existing data, you can also run:
+> ```bash
+> npm run seed:demo
+> ```
 
 ### 5. Run Development Server
 ```bash
@@ -103,11 +109,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 👥 1-Click Demo Login Accounts
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **👑 OWNER** | `alex@taskflow.com` | `password123` |
-| **🛡️ ADMIN** | `sarah@taskflow.com` | `password123` |
-| **👤 MEMBER** | `david@taskflow.com` | `password123` |
+| Role | Name | Email | Password |
+| :--- | :--- | :--- | :--- |
+| **👑 OWNER** | Alex Rivera | `alex@taskflow.dev` | `password123` |
+| **🛡️ ADMIN** | Sarah Chen | `sarah@taskflow.dev` | `password123` |
+| **👤 MEMBER** | Marcus Vance | `marcus@taskflow.dev` | `password123` |
+| **👤 MEMBER** | Elena Rostova | `elena@taskflow.dev` | `password123` |
 
 ---
 
