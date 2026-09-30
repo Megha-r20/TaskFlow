@@ -370,7 +370,7 @@ export default function LandingPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-6 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center space-y-2 aspect-video">
                       <img
-                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host"
+                        src="https://api.dicebear.com/10.x/avataaars/svg?seed=Sarah&topVariant=longHairStraight&hairColor=ffde7b&facialHairProbability=0&eyesVariant=happy&mouthVariant=smile"
                         className="w-16 h-16 rounded-full border-2 border-amber-500"
                         alt="Sarah Chen Avatar"
                       />

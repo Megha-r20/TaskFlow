@@ -73,7 +73,10 @@ export default function HuddleRoom({ project = null, onMinimize = null, onLeave 
       id: user?.id || 'me',
       name: `${user?.name || 'You'} (Host)`,
       role: 'Host',
-      avatar: user?.avatarUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Host',
+      avatar:
+        user?.avatarUrl && !user.avatarUrl.includes('api.dicebear.com/7.x/avataaars')
+          ? user.avatarUrl
+          : 'https://api.dicebear.com/10.x/avataaars/svg?seed=Sarah&topVariant=longHairStraight&hairColor=ffde7b&facialHairProbability=0&eyesVariant=happy&mouthVariant=smile',
       isMe: true,
       isMuted: true,
       isVideoOff: true,

@@ -80,13 +80,19 @@ cd TaskFlow
 npm install
 ```
 
-### 3. Setup Database & Seed Data
+### 3. Configure the local database
+Create a `.env` file in the project root with:
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### 4. Setup Database & Seed Data
 ```bash
 npx prisma db push
 npm run seed
 ```
 
-### 4. Run Development Server
+### 5. Run Development Server
 ```bash
 npm run dev
 ```
